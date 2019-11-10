@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
@@ -41,6 +43,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      * 否则分享回调不成功
      */
     private int wxType;
+    private String shareData;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +57,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         Intent intent = getIntent();
         wxType = intent.getIntExtra(AppConfig.WX_TYPE, 0);
         if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
-            shareWX(wxType, null);
+            shareData = intent.getStringExtra("data");
+            if (!TextUtils.isEmpty(shareData)) {
+                shareWX(wxType, shareData);
+            } else {
+                Toast.makeText(this, "分享失败", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
             auth();
         }
@@ -212,28 +221,58 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
-    private void shareText(int mTargetScene, String strText) {
-        //初始化一个 WXTextObject 对象，填写分享的文本内容
-        WXTextObject textObj = new WXTextObject();
-        textObj.text = strText;
-        //用 WXTextObject 对象初始化一个 WXMediaMessage 对象
-        WXMediaMessage msg = new WXMediaMessage();
-        msg.mediaObject = textObj;
-        // 发送文本类型的消息时，title字段不起作用
-        msg.title = "share";
-        msg.description = strText;
+    private void shareWX(int mTargetScene, String data) {
+//        {
+//            "title":"测试分享描述",
+//                "desc":"测试分享描述",
+//                "link":"https://pai.qianyusoft.cn/ddq_front/entrance.html",
+//                "imgUrl":"https://wei.bidddq.com/imgs/logo.jpg"
+//        }
+        String mtitle = null,mdesc = null;
+        try {
+            JSONObject object=new JSONObject(data);
+            mtitle=object.getString("title");
+            mdesc=object.getString("desc");
+            
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+
+        Bitmap loadUrlBitmap = null;
+        try {
+            loadUrlBitmap = Glide.with(this).asBitmap()
+                    .load("https://wei.bidddq.com/imgs/logo.jpg")
+                    .submit(200, 200).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //0 分享好友  1 分享朋友圈
+        int THUMB_SIZE = 150;
+        WXWebpageObject webpage = new WXWebpageObject();
+        webpage.webpageUrl = AppConfig.URL_RELEASE;
+        WXMediaMessage msg = new WXMediaMessage(webpage);
+        msg.title = mtitle;
+        msg.description = mdesc;
+        Bitmap bmp;
+        if (loadUrlBitmap == null) {//如果网络加载失败直接选取本地logo
+            bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo);
+        } else {
+            bmp = loadUrlBitmap; //网络图片
+        }
+        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
+        bmp.recycle();
+        msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
         SendMessageToWX.Req req = new SendMessageToWX.Req();
-        req.transaction = buildTransaction("text");
+        req.transaction = buildTransaction("webpage");
         req.message = msg;
         if (mTargetScene == 0) {
             req.scene = SendMessageToWX.Req.WXSceneSession;//好友
         } else if (mTargetScene == 1) {
             req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
         }
-//        req.openId= Constants.APP_ID;
         MyApplication.WXapi.sendReq(req);
-        finish();
     }
 
     private void shareWX(int mTargetScene, Bitmap loadUrlBitmap) {

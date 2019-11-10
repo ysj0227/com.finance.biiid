@@ -112,7 +112,9 @@ public class MainActivity extends BaseActivity {
 
     @Click(R.id.iv_more)
     void moreClick() {
-        showDialog(context, TYPE_SHARE);
+        //TODO
+        // 分享的固定内容
+        showDialog(context, TYPE_SHARE,"");
     }
 
     @Override
@@ -215,12 +217,7 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void wechatShare(String data) {
             Log.e("tag ", "js to android wechatShare=" + data);
-            showDialog(MainActivity.this, TYPE_SHARE);
-            try {
-                JSONObject jsonObject = new JSONObject(data);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            showDialog(MainActivity.this, TYPE_SHARE, data);
         }
 
         @JavascriptInterface
@@ -232,21 +229,30 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void getPicture() {
             Log.e("tag ", "js to android getPicture");
-            showDialog(MainActivity.this, TYPE_CANER);
+            showDialog(MainActivity.this, TYPE_CANER, "");
         }
 
         @JavascriptInterface
         public void wechatLogin() {
             Log.e("tag ", "js to android wechatLogin");
-            gotoWxActivity(AppConfig.WX_TYPE_AUTH);
+            gotoWxAuthActivity();
         }
     }
 
-    private void gotoWxActivity(int type) {
+    //微信授权登录
+    private void gotoWxAuthActivity() {
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
-        intent.putExtra(AppConfig.WX_TYPE, type);
+        intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_AUTH);
         startActivity(intent);
     }
+    //分享
+    private void gotoWxActivity(int type, String data) {
+        Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
+        intent.putExtra(AppConfig.WX_TYPE, type);
+        intent.putExtra("data", data);
+        startActivity(intent);
+    }
+
     //跳转微信支付
     private void gotoWxPayActivity() {
         //是否支持微信支付
@@ -261,7 +267,7 @@ public class MainActivity extends BaseActivity {
 
     private Dialog dialog;
 
-    public void showDialog(final Context getActivity, int type) {
+    public void showDialog(final Context getActivity, int type, String data) {
         dialog = new Dialog(getActivity, R.style.BottomDialog);
         View inflate = LayoutInflater.from(getActivity).inflate(R.layout.dialog_ddq, null);
         //将布局设置给Dialog
@@ -300,9 +306,9 @@ public class MainActivity extends BaseActivity {
             if (type == TYPE_SHARE) {
                 dialog.dismiss();
                 if (i == R.id.tvUp) {
-                    gotoWxActivity(AppConfig.WX_TYPE_FRIEND);
+                    gotoWxActivity(AppConfig.WX_TYPE_FRIEND, data);
                 } else if (i == R.id.tvDown) {
-                    gotoWxActivity(AppConfig.WX_TYPE_TIMELINE);
+                    gotoWxActivity(AppConfig.WX_TYPE_TIMELINE, data);
                 }
             } else if (type == TYPE_CANER) {
                 if (i == R.id.tvUp) {
