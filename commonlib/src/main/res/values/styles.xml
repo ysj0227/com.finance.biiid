@@ -1,0 +1,149 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/common_orange</item>
+        <item name="colorPrimaryDark">@color/c_primary_dark</item>
+        <item name="colorAccent">@color/common_orange</item>
+        <item name="android:windowBackground">@color/bg_common</item>
+        <item name="android:editTextColor">@color/text_main</item>
+        <item name="android:textColor">@color/text_main</item>
+
+        <!--上方状态栏-->
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <style name="Son_dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="LoadingDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">#00000000</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="BottomDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowAnimationStyle">@style/BottomDialog.Animation</item>
+    </style>
+
+    <style name="BottomDialog.Animation" parent="Animation.AppCompat.Dialog">
+        <item name="android:windowEnterAnimation">@anim/dialog_bottom_translate_in</item>
+        <item name="android:windowExitAnimation">@anim/dialog_bottom_translate_out</item>
+    </style>
+
+    <!--动画-->
+    <style name="RightInRightOutAnim" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_in_right</item>
+        <item name="android:activityCloseEnterAnimation">@anim/slide_in_left</item>
+
+        <item name="android:activityOpenExitAnimation">@anim/slide_out_left</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_out_right</item>
+    </style>
+
+    <!--底部菜单-->
+    <style name="PopWindowStyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">true</item>
+    </style>
+
+    <style name="PopWindowAnimation" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
+    </style>
+
+    <style name="BtnOrange">
+        <item name="android:layout_marginLeft">@dimen/dp_20</item>
+        <item name="android:layout_marginRight">@dimen/dp_20</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dp_44</item>
+        <item name="android:background">@drawable/button_corners_solid_orange</item>
+        <item name="android:textSize">@dimen/sp_18</item>
+        <item name="android:textColor">@color/c_white</item>
+    </style>
+
+    <style name="BtnGrayRounded">
+        <item name="android:layout_marginLeft">@dimen/dp_20</item>
+        <item name="android:layout_marginRight">@dimen/dp_20</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dp_44</item>
+        <item name="android:background">@drawable/bg_gray_rounded_corner</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:textColor">@color/text_main</item>
+    </style>
+
+    <style name="ConfigTitleText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/dp_30</item>
+        <item name="android:layout_marginTop">@dimen/dp_24</item>
+        <item name="android:textColor">@color/text_main</item>
+        <item name="android:textSize">@dimen/sp_28</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ConfigTipText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">@dimen/dp_25</item>
+        <item name="android:layout_marginEnd">@dimen/dp_25</item>
+        <item name="android:textSize">@dimen/sp_12</item>
+        <item name="android:textColor">@color/text_main</item>
+    </style>
+
+    <style name="ProgressHorizontal">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/progress_horizontal_color</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
+        <item name="android:minHeight">@dimen/dp_12</item>
+        <item name="android:maxHeight">@dimen/dp_12</item>
+        <item name="android:mirrorForRtl">true</item>
+    </style>
+
+    <style name="DialogTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">@dimen/dp_24</item>
+        <item name="android:layout_marginEnd">@dimen/dp_24</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/text_main</item>
+        <item name="android:textSize">@dimen/sp_16</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="BtnEdgeOrange">
+        <item name="android:layout_width">@dimen/dp_56</item>
+        <item name="android:layout_height">@dimen/dp_26</item>
+        <item name="android:textColor">@color/common_orange</item>
+        <item name="android:background">@drawable/button_corner_edge_orange</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/sp_10</item>
+    </style>
+
+   
+</resources>

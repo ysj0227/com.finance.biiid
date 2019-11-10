@@ -1,0 +1,103 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion COMPILE_SDK_VERSION
+    buildToolsVersion BUILD_TOOLS_VERSION
+    useLibrary 'org.apache.http.legacy'
+
+    defaultConfig {
+        minSdkVersion MIN_SDK_VERSION
+        targetSdkVersion TARGET_SDK_VERSION
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+            }
+        }
+        multiDexEnabled true
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    buildTypes {
+        debug {
+            manifestPlaceholders = [
+                    MI_PERMISSION_NAME: "com.sunmi.assistant.test.permission.MIPUSH_RECEIVE",
+                    GAO_MAP_KEY       : "c80ca3ce3b15895e2f018f8f2cd99c84"]
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            manifestPlaceholders = [
+                    MI_PERMISSION_NAME: "com.sunmi.assistant.permission.MIPUSH_RECEIVE",
+                    GAO_MAP_KEY       : "443a7ffc55db3d44dba621365618e3ee"]
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api fileTree(include: ['*.aar'], dir: 'libs')
+
+//    api project(':BadgeView')
+
+    api "com.android.support:appcompat-v7:${SUPPORT_VERSION}"
+    api 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    testImplementation 'org.mockito:mockito-core:2.19.0'
+    androidTestImplementation 'org.mockito:mockito-core:2.19.0'
+
+    //design
+    api "com.android.support:design:${SUPPORT_VERSION}"
+    //recyclerView
+    api "com.android.support:recyclerview-v7:${SUPPORT_VERSION}"
+    //cardview
+    api "com.android.support:cardview-v7:${SUPPORT_VERSION}"
+
+    //注解
+    api 'com.jakewharton:butterknife:9.0.0'
+    implementation 'com.jakewharton:butterknife-compiler:9.0.0'
+    api "org.androidannotations:androidannotations-api:${AAVersion}"
+    annotationProcessor "org.androidannotations:androidannotations:${AAVersion}"
+
+    //根据window和mac选择版本
+    api 'com.android.support:multidex:1.0.3'
+    api 'com.googlecode.plist:dd-plist:1.20'
+
+    //glide
+    api 'com.github.bumptech.glide:glide:4.9.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    //litePal数据库
+    api 'org.litepal.android:core:1.5.1'
+
+    //okHttp
+    api 'com.qianwen:update-app:3.5.2'
+    api 'com.qianwen:okhttp-utils:3.8.0'
+
+    //Gson
+    api 'com.google.code.gson:gson:2.8.5'
+
+    //圆形头像
+    api 'de.hdodenhof:circleimageview:2.1.0'
+
+    //下拉刷新
+    api 'cn.bingoogolapple:bga-refreshlayout:1.1.8@aar'
+
+    //Android 徽章控件
+    annotationProcessor "cn.bingoogolapple:bga-badgeview-compiler:1.1.8"
+
+    //retrofit
+    api 'com.squareup.okhttp3:okhttp:3.10.0'
+    api 'com.squareup.retrofit2:retrofit:2.4.0'
+}

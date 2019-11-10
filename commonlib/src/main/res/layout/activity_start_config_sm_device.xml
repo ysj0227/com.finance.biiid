@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/c_white">
+
+    <sunmi.common.view.TitleBarView
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerColor="@color/c_divider"
+        app:dividerShow="true"
+        app:leftDefaultClickEnable="true"
+        app:leftIcon="@drawable/ic_back_dark"
+        app:titleTextColor="@color/text_main" />
+
+    <ImageView
+        android:id="@+id/iv_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title_bar"
+        android:layout_centerHorizontal="true"
+        android:scaleType="center" />
+
+    <TextView
+        android:id="@+id/tv_tip_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_image"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/text_main"
+        android:textSize="@dimen/sp_28" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nsv_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ctv_privacy"
+        android:layout_below="@id/tv_tip_1"
+        android:layout_marginBottom="@dimen/dp_1">
+
+        <LinearLayout
+            android:id="@+id/ll_sv_root"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_tip_2"
+                style="@style/ConfigTipText"
+                android:layout_marginTop="@dimen/dp_16" />
+
+            <TextView
+                android:id="@+id/tv_tip_3"
+                style="@style/ConfigTipText"
+                android:layout_marginTop="@dimen/dp_12" />
+
+            <TextView
+                android:id="@+id/tv_tip_4"
+                style="@style/ConfigTipText"
+                android:layout_marginTop="@dimen/dp_12"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_tip_5"
+                style="@style/ConfigTipText"
+                android:layout_marginTop="@dimen/dp_12"
+                android:visibility="gone" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/tv_config_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ctv_privacy"
+        android:layout_marginTop="@dimen/dp_40"
+        android:gravity="center_horizontal"
+        android:text="@string/tip_has_ap_already"
+        android:textColor="@color/assist_primary"
+        android:textSize="@dimen/sp_14"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/view_divider_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0_5"
+        android:layout_above="@+id/ctv_privacy"
+        android:background="@color/c_divider"
+        android:visibility="gone" />
+
+    <CheckedTextView
+        android:id="@+id/ctv_privacy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_start"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_6"
+        android:checked="true"
+        android:drawableStart="@drawable/selector_privacy"
+        android:drawablePadding="@dimen/dp_3"
+        android:text="@string/str_click_consent"
+        android:textColor="@color/c_black"
+        android:textSize="@dimen/sp_10" />
+
+    <Button
+        android:id="@+id/btn_start"
+        style="@style/BtnOrange"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_20"
+        android:text="@string/str_start_set" />
+
+</RelativeLayout>

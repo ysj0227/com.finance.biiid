@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_setting_item"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_48">
+
+    <ImageView
+        android:id="@+id/iv_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/dp_10"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_left"
+        android:layout_width="@dimen/dp_68"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:textColor="@color/text_normal"
+        android:textSize="@dimen/sp_16" />
+
+    <sunmi.common.view.ClearableEditText
+        android:id="@+id/et_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_toEndOf="@id/tv_left"
+        android:background="@null"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:textColor="@color/text_main"
+        android:textColorHint="@color/text_disable"
+        android:textSize="@dimen/sp_16" />
+
+    <TextView
+        android:id="@+id/tv_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:textColor="@color/text_disable"
+        android:textSize="@dimen/sp_12" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_0_5"
+        android:layout_alignParentBottom="true"
+        android:background="@color/c_divider" />
+
+</RelativeLayout>

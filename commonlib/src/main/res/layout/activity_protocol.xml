@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/c_white">
+
+    <sunmi.common.view.webview.SMWebView
+        android:id="@+id/wv_protocol"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp_20" />
+
+    <Button
+        android:id="@+id/btnImage"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_40"
+        android:background="@mipmap/ic_pro_quit"
+        android:visibility="visible" />
+</RelativeLayout>

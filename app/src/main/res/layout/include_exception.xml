@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_exception"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/c_divider"
+    android:gravity="center"
+    android:visibility="gone">
+
+    <ImageView
+        android:id="@+id/iv_no_net"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@mipmap/ic_support_exception" />
+
+    <TextView
+        android:id="@+id/tv_net_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_no_net"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dp_15"
+        android:text="@string/str_net_exception"
+        android:textColor="@color/text_caption"
+        android:textSize="@dimen/sp_14" />
+
+    <Button
+        android:id="@+id/btn_again"
+        android:layout_width="@dimen/dp_180"
+        android:layout_height="@dimen/dp_40"
+        android:layout_below="@id/tv_net_tip"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@drawable/edittext_soild_orange"
+        android:text="@string/str_btn_try_again"
+        android:textColor="@color/c_white"
+        android:textSize="@dimen/sp_16" />
+
+</RelativeLayout>

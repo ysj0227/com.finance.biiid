@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">比特东东抢</string>
+    <!--微信-->
+    <string name="errcode_success">分享成功</string>
+    <string name="errcode_cancel">分享取消</string>
+    <string name="auth_cancel">授权登录取消</string>
+    <string name="errcode_deny">发送被拒绝</string>
+    <string name="errcode_unsupported">不支持错误</string>
+    <string name="errcode_unknown">发送返回</string>
+    <string name="wx_not_install">您还未安装微信客户端</string>
+    <string name="toast_press_again_quit">再按一次退出程序</string>
+    <!--permission-->
+    <string name="permission_get">手机权限已获取</string>
+    <string name="str_open_permission_to_update">需要开启未知来源权限才能进行app更新</string>
+    <string name="str_no_sd">设备没有SD卡！</string>
+    <string name="str_please_open_camera">请允许打开相机！！</string>
+    <string name="str_please_open_sd">请允许打操作SDCard！！</string>
+    <string name="str_img_upload_success">上传成功</string>
+    <string name="str_img_upload_fail">上传失败</string>
+    <string name="wx_str_no_support_pay">当前微信版本不支持支付，请升级到新版本</string>
+</resources>

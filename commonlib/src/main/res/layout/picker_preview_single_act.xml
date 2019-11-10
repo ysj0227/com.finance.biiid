@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <sunmi.common.view.TitleBarView
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/c_white"
+        app:dividerShow="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:leftDefaultClickEnable="true"
+        app:leftIcon="@drawable/ic_back_dark"
+        app:titleTextColor="@color/text_main" />
+
+    <ImageView
+        android:id="@+id/iv_picker_preview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/c_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar" />
+
+</android.support.constraint.ConstraintLayout>

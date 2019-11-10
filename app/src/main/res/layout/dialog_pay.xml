@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@color/transparent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_centerInParent="true"
+        android:id="@+id/rl_pay_result"
+        android:layout_width="@dimen/dp_250"
+        android:layout_height="@dimen/dp_250"
+        android:background="@drawable/bg_shap_radus">
+
+        <ImageView
+            android:id="@+id/iv_pay_icon"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_30"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/dp_50"
+            android:background="@mipmap/ic_pay_success" />
+
+        <TextView
+            android:id="@+id/tv_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_pay_icon"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/dp_20"
+            android:textColor="@color/text_main"
+            android:textSize="@dimen/sp_18"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btn_sure"
+            android:layout_width="@dimen/dp_100"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/dp_50"
+            android:background="@drawable/edittext_soild_orange"
+            android:text="@string/str_confirm"
+            android:textColor="@color/c_white"
+            android:textSize="@dimen/sp_16" />
+
+    </RelativeLayout>
+</RelativeLayout>

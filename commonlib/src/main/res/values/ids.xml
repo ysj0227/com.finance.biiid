@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- com.google.zxing -->
+    <item name="auto_focus" type="id"/>
+    <item name="decode" type="id"/>
+    <item name="decode_failed" type="id"/>
+    <item name="decode_succeeded" type="id"/>
+    <item name="encode_failed" type="id"/>
+    <item name="encode_succeeded" type="id"/>
+    <item name="launch_product_query" type="id"/>
+    <item name="quit" type="id"/>
+    <item name="restart_preview" type="id"/>
+    <item name="return_scan_result" type="id"/>
+    <item name="selected_view" type="id"/>
+
+    <!-- RelativeLayout ids -->
+    <item name="rlTop" type="id"></item>
+    <item name="rlMain" type="id"></item>
+    <item name="rl0" type="id"></item>
+    <item name="rl1" type="id"></item>
+    <item name="rl2" type="id"></item>
+    <item name="rl3" type="id"></item>
+    <item name="rl4" type="id"></item>
+    <item name="rl5" type="id"></item>
+    <item name="rl6" type="id"></item>
+
+    <!-- LinearLayout ids -->
+    <item name="ll0" type="id"></item>
+    <item name="ll1" type="id"></item>
+    <item name="ll2" type="id"></item>
+    <item name="ll3" type="id"></item>
+    <item name="ll4" type="id"></item>
+    <item name="ll5" type="id"></item>
+    <item name="ll6" type="id"></item>
+
+    <!-- View ids -->
+    <item name="vLine" type="id"></item>
+
+    <!-- TextView ids -->
+    <item name="tvTitle" type="id"></item>
+    <item name="tvTabItem" type="id"></item>
+    <item name="tvMenuItem" type="id"></item>
+    <item name="tvMoreItem" type="id"></item>
+    <item name="tvVersion" type="id"></item>
+    <item name="tvInfo" type="id"></item>
+    <item name="tvItem" type="id"></item>
+    <item name="tvIdcode" type="id"></item>
+    <item name="tvDatetime" type="id"></item>
+    <item name="tvIMEI" type="id"></item>
+    <item name="tvRight" type="id"></item>
+
+    <!-- ImageView ids -->
+    <item name="ivTabItem" type="id"></item>
+    <item name="ivMoreItem" type="id"></item>
+    <item name="ivAppLogo" type="id"></item>
+
+    <!-- Button ids -->
+    <item name="btnBack" type="id"></item>
+    <item name="btnOther" type="id"></item>
+    <item name="btnLogin" type="id"></item>
+    <item name="btnReset" type="id"></item>
+    <item name="btnDownload" type="id"></item>
+    <item name="btnSave" type="id"></item>
+    <item name="btnScan" type="id"></item>
+    <item name="btnView" type="id"></item>
+    <item name="btnUpload" type="id"></item>
+    <item name="btnDelete" type="id"></item>
+    <item name="btnQuery" type="id"></item>
+    <item name="btnClear" type="id"></item>
+    <item name="btnSeting" type="id"></item>
+
+    <!-- EditText ids -->
+    <item name="etUserName" type="id"></item>
+    <item name="et_password" type="id" />
+    <item name="etIdcode" type="id"></item>
+    <item name="etStorageLocation" type="id"></item>
+    <item name="etInfo" type="id"></item>
+
+    <!-- GridView ids -->
+    <item name="gvMenu" type="id"></item>
+
+    <!-- ListView ids -->
+    <item name="lvMore" type="id"></item>
+    <item name="lvIdcodes" type="id"></item>
+
+    <!-- CheckBox ids -->
+    <item name="cbItem" type="id"></item>
+
+    <!-- Spinner ids -->
+    <item name="spnIdcodeType" type="id"></item>
+
+</resources>

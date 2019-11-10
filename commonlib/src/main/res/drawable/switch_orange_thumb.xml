@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- 高度40 -->
+    <size
+        android:width="25dp"
+        android:height="25dp" />
+    <!-- 圆角弧度 20 -->
+    <corners android:radius="20dp" />
+
+
+    <!-- 变化率 圆点颜色-->
+    <gradient
+        android:endColor="#F7F7F7"
+        android:startColor="#F7F7F7" />
+
+    <stroke
+        android:width="2dp"
+        android:color="@color/common_orange" />
+
+</shape>
