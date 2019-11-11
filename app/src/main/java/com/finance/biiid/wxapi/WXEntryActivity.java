@@ -1,5 +1,6 @@
 package com.finance.biiid.wxapi;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -9,14 +10,22 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.Constants;
+import com.finance.biiid.model.ShareData;
 import com.finance.biiid.utils.Util;
 import com.finance.biiid.utils.WXPayUtil;
+import com.finance.biiid.utils.WxAuthLoginUtils;
 import com.finance.commonlib.http.BaseHttpApi;
+import com.google.gson.Gson;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
@@ -67,27 +76,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
             auth();
         }
-
-//		  通过WXAPIFactory工厂，获取IWXAPI的实例(已在Application 实例化)
-//        api = WXAPIFactory.createWXAPI(this, Constants.APP_ID, false);
-//        api.registerApp(Constants.APP_ID);
-
-        //获取分享的传值  //targetScene 0 分享好友  1 分享朋友圈
-//        Bundle bundle = getIntent().getExtras();
-//        Bitmap bitmap = bundle.getParcelable("bitmap");
-//        int targetScene = bundle.getInt("targetScene");
-
-        /**
-         * 分享到好友，朋友圈
-         */
-//        shareWX(0, null);
-//        shareText(0, "的点点滴滴");
-        /**
-         * 分享小程序(小程序只能分享到好友，无法分享到朋友圈)
-         */
-//        shareProgram(bitmap);
-
-//        auth();
     }
 
     @Override
@@ -113,12 +101,14 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         switch (resp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
+                    //分享
                     result = R.string.errcode_success;
                     Toast.makeText(this, result, Toast.LENGTH_LONG).show();
                     this.finish();
                 } else if (AppConfig.WX_TYPE_AUTH == wxType) {
+                    //授权登录
                     String code = ((SendAuth.Resp) resp).code;
-                    token(code);
+                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
@@ -146,11 +136,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 this.finish();
                 break;
         }
-
-
     }
 
-    //#########################################################################################
+    //授权请求
     private void auth() {
         final SendAuth.Req req = new SendAuth.Req();
         req.scope = "snsapi_userinfo";
@@ -158,121 +146,38 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         MyApplication.WXapi.sendReq(req);
     }
 
-    private void token(String code) {
-        Map<String, String> params = new HashMap<>();
-        params.put("appid", Constants.APP_ID);
-        params.put("secret", Constants.APP_SECRET);
-        params.put("code", code);
-        params.put("grant_type", "authorization_code");
-
-        BaseHttpApi.post("https://api.weixin.qq.com/sns/oauth2/access_token?", params, new StringCallback() {
-            @Override
-            public void onError(Call call, Response response, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                Log.e("tag", response);
-//                {"access_token":"27_YDUAfAWnfJGL4nirwyCoSah2PY8TIxs0em46AFbNrs2vmD35FkP2fCQGAGxm2oVue2IzNqoUA10ElpMZG4GwYwWHFqIBDrrfj-hPajmQBYU",
-//                        "expires_in":7200,"" +
-//                        "refresh_token":"27_cS7j_sax_7iIg4zbm3Ets48s5rR5QukKI-Z87udqfLBJTdTW1PWLYlq-0yRiIBgaiU2J31hNbJ8ccr3RjSJ45ceKVrBBVBqMMqtYQxSjYR4",
-//                        "openid":"o6Frrw6RqIfYS0OTCXtexsqGM5R0",
-//                        "scope":"snsapi_userinfo",
-//                        "unionid":"o8W2Vs-FCsc3slZS7KnlqsUSENlk"}
-                try {
-                    JSONObject object = new JSONObject(response);
-                    String access_token = object.getString("access_token");
-                    String openid = object.getString("openid");
-                    getUserInfo(access_token, openid);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-    }
-
-    private void getUserInfo(String access_token, String openid) {
-        Map<String, String> params = new HashMap<>();
-        params.put("access_token", access_token);
-        params.put("openid", openid);
-
-        BaseHttpApi.post("https://api.weixin.qq.com/sns/userinfo?", params, new StringCallback() {
-            @Override
-            public void onError(Call call, Response response, Exception e, int id) {
-
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                Log.e("tag", "******  = " + response);
-                Toast.makeText(WXEntryActivity.this, response, Toast.LENGTH_LONG).show();
-                finish();
-            }
-        });
-    }
-
-
-    //#########################################################################################
-
-
     private String buildTransaction(final String type) {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
+    @SuppressLint("CheckResult")
     private void shareWX(int mTargetScene, String data) {
-//        {
-//            "title":"测试分享描述",
-//                "desc":"测试分享描述",
-//                "link":"https://pai.qianyusoft.cn/ddq_front/entrance.html",
-//                "imgUrl":"https://wei.bidddq.com/imgs/logo.jpg"
-//        }
-        String mtitle = null,mdesc = null;
-        try {
-            JSONObject object=new JSONObject(data);
-            mtitle=object.getString("title");
-            mdesc=object.getString("desc");
-            
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
-        Bitmap loadUrlBitmap = null;
-        try {
-            loadUrlBitmap = Glide.with(this).asBitmap()
-                    .load("https://wei.bidddq.com/imgs/logo.jpg")
-                    .submit(200, 200).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //0 分享好友  1 分享朋友圈
+        ShareData bean = new Gson().fromJson(data, ShareData.class);
         int THUMB_SIZE = 150;
         WXWebpageObject webpage = new WXWebpageObject();
-        webpage.webpageUrl = AppConfig.URL_RELEASE;
+        webpage.webpageUrl = bean.getLink();
         WXMediaMessage msg = new WXMediaMessage(webpage);
-        msg.title = mtitle;
-        msg.description = mdesc;
-        Bitmap bmp;
-        if (loadUrlBitmap == null) {//如果网络加载失败直接选取本地logo
-            bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo);
-        } else {
-            bmp = loadUrlBitmap; //网络图片
-        }
-        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-        bmp.recycle();
-        msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
-        SendMessageToWX.Req req = new SendMessageToWX.Req();
-        req.transaction = buildTransaction("webpage");
-        req.message = msg;
-        if (mTargetScene == 0) {
-            req.scene = SendMessageToWX.Req.WXSceneSession;//好友
-        } else if (mTargetScene == 1) {
-            req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
-        }
-        MyApplication.WXapi.sendReq(req);
+        msg.title = bean.getTitle();
+        msg.description = bean.getDesc();
+        //0 分享好友  1 分享朋友圈
+        Glide.with(this).asBitmap().load(bean.getImgUrl()).into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                Bitmap thumbBmp = Bitmap.createScaledBitmap(resource, THUMB_SIZE, THUMB_SIZE, true);
+                resource.recycle();
+                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+                SendMessageToWX.Req req = new SendMessageToWX.Req();
+                req.transaction = buildTransaction("webpage");
+                req.message = msg;
+                if (mTargetScene == 0) {
+                    req.scene = SendMessageToWX.Req.WXSceneSession;//好友
+                } else if (mTargetScene == 1) {
+                    req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
+                }
+                MyApplication.WXapi.sendReq(req);
+                finish();
+            }
+        });
     }
 
     private void shareWX(int mTargetScene, Bitmap loadUrlBitmap) {
@@ -328,6 +233,4 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         req.message = mediaMessage;
         MyApplication.WXapi.sendReq(req);
     }
-
-
 }

@@ -38,7 +38,7 @@ import androidx.core.content.FileProvider;
 
 import com.alibaba.fastjson.JSON;
 import com.finance.biiid.config.AppConfig;
-import com.finance.biiid.test.TestActivity;
+import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.utils.BitmapUtils;
 import com.finance.biiid.webview.SMWebViewClient;
 import com.finance.biiid.wxapi.WXEntryActivity;
@@ -53,8 +53,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -114,7 +112,7 @@ public class MainActivity extends BaseActivity {
     void moreClick() {
         //TODO
         // 分享的固定内容
-        showDialog(context, TYPE_SHARE,"");
+        showDialog(context, TYPE_SHARE, "");
     }
 
     @Override
@@ -237,6 +235,12 @@ public class MainActivity extends BaseActivity {
             Log.e("tag ", "js to android wechatLogin");
             gotoWxAuthActivity();
         }
+
+        @JavascriptInterface
+        public void checkWechatLoginStatus(String data) {
+            Log.e("tag ", "js to android checkWechatLoginStatus");
+            gotoWxAuthActivity();
+        }
     }
 
     //微信授权登录
@@ -245,6 +249,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_AUTH);
         startActivity(intent);
     }
+
     //分享
     private void gotoWxActivity(int type, String data) {
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
@@ -460,6 +465,23 @@ public class MainActivity extends BaseActivity {
             }
         } else {
             Toast.makeText(this, R.string.str_img_upload_fail, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public int[] getStickNotificationId() {
+        return new int[]{CommonNotifications.weChatData};
+    }
+
+    @Override
+    public void didReceivedNotification(int id, Object... args) {
+        super.didReceivedNotification(id, args);
+        if (args == null) {
+            return;
+        }
+        if (id == CommonNotifications.weChatData) {
+            String resp= (String) args[0];
+            Log.e("tag", "1111 weChatData= " + resp);
         }
     }
 }

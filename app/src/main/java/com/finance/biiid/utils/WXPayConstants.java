@@ -43,4 +43,7 @@ public class WXPayConstants {
     public static final String SANDBOX_SHORTURL_URL     = "https://api.mch.weixin.qq.com/sandboxnew/tools/shorturl";
     public static final String SANDBOX_AUTHCODETOOPENID_URL = "https://api.mch.weixin.qq.com/sandboxnew/tools/authcodetoopenid";
 
+    public static final String AUTH_ACCESS_TOKEN = "https://api.weixin.qq.com/sns/oauth2/access_token?";
+    public static final String USER_INFO= "https://api.weixin.qq.com/sns/userinfo?";
+
 }
