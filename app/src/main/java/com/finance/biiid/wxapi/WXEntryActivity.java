@@ -7,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,9 +21,7 @@ import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.Constants;
 import com.finance.biiid.model.ShareData;
 import com.finance.biiid.utils.Util;
-import com.finance.biiid.utils.WXPayUtil;
 import com.finance.biiid.utils.WxAuthLoginUtils;
-import com.finance.commonlib.http.BaseHttpApi;
 import com.google.gson.Gson;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -32,19 +29,11 @@ import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject;
-import com.tencent.mm.opensdk.modelmsg.WXTextObject;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
-import com.zhy.http.okhttp.callback.StringCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import okhttp3.Call;
-import okhttp3.Response;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     /**
@@ -52,7 +41,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      * 否则分享回调不成功
      */
     private int wxType;
-    private String shareData;
+    private String mData;
+    private String appId="",appSecret="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,15 +55,24 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         }
         Intent intent = getIntent();
         wxType = intent.getIntExtra(AppConfig.WX_TYPE, 0);
+        mData = intent.getStringExtra("data");
         if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
-            shareData = intent.getStringExtra("data");
-            if (!TextUtils.isEmpty(shareData)) {
-                shareWX(wxType, shareData);
+            //分享
+            if (!TextUtils.isEmpty(mData)) {
+                shareWX(wxType, mData);
             } else {
                 Toast.makeText(this, "分享失败", Toast.LENGTH_SHORT).show();
                 finish();
             }
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
+            //授权
+            try {
+                JSONObject object=new JSONObject(mData);
+                appId=object.getString("appId");
+                appSecret=object.getString("appSecret");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             auth();
         }
     }
@@ -108,7 +107,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 } else if (AppConfig.WX_TYPE_AUTH == wxType) {
                     //授权登录
                     String code = ((SendAuth.Resp) resp).code;
-                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
+//                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
+                    WxAuthLoginUtils.getToken(this,appId,appSecret,code);
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:

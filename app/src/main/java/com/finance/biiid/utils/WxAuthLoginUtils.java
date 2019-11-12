@@ -73,7 +73,7 @@ public class WxAuthLoginUtils {
             public void onResponse(String response, int id) {
                 Log.e("tag", "******  = " + response);
                 Toast.makeText(context, response, Toast.LENGTH_LONG).show();
-                BaseNotification.newInstance().postNotificationName(CommonNotifications.weChatData, response);
+                BaseNotification.newInstance().postNotificationName(CommonNotifications.weChatData, data,response);
                 context.finish();
             }
         });

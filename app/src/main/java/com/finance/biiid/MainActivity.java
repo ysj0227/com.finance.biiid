@@ -37,6 +37,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.utils.BitmapUtils;
@@ -195,13 +197,38 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    //Android to js
+    /*************Android to js********
+     /**
+     * 上传图片到js
+     * @param bitmap bitmap
+     */
     @UiThread
     void postBase64String(Bitmap bitmap) {
         String str = BitmapUtils.convertIconToString(bitmap);
         Map<String, String> map = new HashMap<>();
         map.put("data", str);
         webView.loadUrl("javascript:compressedImageData" + "('" + JSON.toJSONString(map) + "')");
+    }
+
+    /**
+     * 上传微信授权信息到js
+     *
+     * @param d1 d1
+     * @param d2 d2
+     */
+    @UiThread
+    void wxChatAuthSuccess(String d1, String d2) {
+        try {
+            JSONObject object = new JSONObject();
+            JSONObject object1 = JSONObject.parseObject(d1);
+            JSONObject object2 = JSONObject.parseObject(d2);
+            object.putAll(object1);
+            object.putAll(object2);
+            Log.e("tag", "1111 wxChatAuthSuccess= " + object.toString());
+            webView.loadUrl("javascript:getUserLoginInfo" + "('" + object.toString() + "')");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     //js传递给Android
@@ -221,7 +248,7 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void wechatPay(String data) {
             Log.e("tag ", "js to android wechatPay=" + data);
-            gotoWxPayActivity();
+            gotoWxPayActivity(data);
         }
 
         @JavascriptInterface
@@ -231,22 +258,23 @@ public class MainActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public void wechatLogin() {
-            Log.e("tag ", "js to android wechatLogin");
-            gotoWxAuthActivity();
+        public void wechatLogin(String data) {
+            Log.e("tag ", "js to android wechatLogin"+data);
+            gotoWxAuthActivity(data);
         }
 
         @JavascriptInterface
         public void checkWechatLoginStatus(String data) {
             Log.e("tag ", "js to android checkWechatLoginStatus");
-            gotoWxAuthActivity();
+            gotoWxAuthActivity(data);
         }
     }
 
     //微信授权登录
-    private void gotoWxAuthActivity() {
+    private void gotoWxAuthActivity(String data) {
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
         intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_AUTH);
+        intent.putExtra("data", data);
         startActivity(intent);
     }
 
@@ -259,11 +287,12 @@ public class MainActivity extends BaseActivity {
     }
 
     //跳转微信支付
-    private void gotoWxPayActivity() {
+    private void gotoWxPayActivity(String data) {
         //是否支持微信支付
         boolean isPaySupported = MyApplication.WXapi.getWXAppSupportAPI() >= com.tencent.mm.opensdk.constants.Build.PAY_SUPPORTED_SDK_INT;
         if (isPaySupported) {
             Intent intent = new Intent(MainActivity.this, WXPayEntryActivity.class);
+            intent.putExtra("data", data);
             startActivity(intent);
         } else {
             shortTip(R.string.wx_str_no_support_pay);
@@ -480,8 +509,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
         if (id == CommonNotifications.weChatData) {
-            String resp= (String) args[0];
-            Log.e("tag", "1111 weChatData= " + resp);
+            String d1= (String) args[0];
+            String d2= (String) args[1];
+            wxChatAuthSuccess(d1,d2);
         }
     }
 }

@@ -19,4 +19,8 @@
     <string name="str_img_upload_fail">上传失败</string>
     <string name="wx_str_no_support_pay">当前微信版本不支持支付，请升级到新版本</string>
     <string name="auth_fail">授权登录失败</string>
+    <string name="pay_success">支付成功</string>
+    <string name="pay_fail">支付失败</string>
+    <string name="pay_cancel">取消支付</string>
+    <string name="pay_error">支付错误</string>
 </resources>
