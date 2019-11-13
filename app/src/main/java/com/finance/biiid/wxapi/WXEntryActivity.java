@@ -58,12 +58,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         mData = intent.getStringExtra("data");
         if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
             //分享
-            if (!TextUtils.isEmpty(mData)) {
-                shareWX(wxType, mData);
-            } else {
-                Toast.makeText(this, "分享失败", Toast.LENGTH_SHORT).show();
-                finish();
-            }
+            shareWX(wxType, mData);
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
             //授权
             try {
@@ -152,7 +147,16 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @SuppressLint("CheckResult")
     private void shareWX(int mTargetScene, String data) {
-        ShareData bean = new Gson().fromJson(data, ShareData.class);
+        ShareData bean;
+        if (TextUtils.isEmpty(data)) {
+             bean=new ShareData();
+             bean.setTitle("比特东东抢");
+             bean.setDesc("让文玩更好玩！");
+             bean.setLink(AppConfig.URL_RELEASE);
+             bean.setImgUrl("https://wei.bidddq.com/imgs/logo.jpg");
+        }else {
+             bean = new Gson().fromJson(data, ShareData.class);
+        }
         int THUMB_SIZE = 150;
         WXWebpageObject webpage = new WXWebpageObject();
         webpage.webpageUrl = bean.getLink();
@@ -178,34 +182,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 finish();
             }
         });
-    }
-
-    private void shareWX(int mTargetScene, Bitmap loadUrlBitmap) {
-        //0 分享好友  1 分享朋友圈
-        int THUMB_SIZE = 150;
-        WXWebpageObject webpage = new WXWebpageObject();
-        webpage.webpageUrl = AppConfig.URL_RELEASE;
-        WXMediaMessage msg = new WXMediaMessage(webpage);
-        msg.title = "标题";
-        msg.description = "东东抢文本信息";
-        Bitmap bmp;
-        if (loadUrlBitmap == null) {//如果网络加载失败直接选取本地logo
-            bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo);
-        } else {
-            bmp = loadUrlBitmap; //网络图片
-        }
-        Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
-        bmp.recycle();
-        msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
-        SendMessageToWX.Req req = new SendMessageToWX.Req();
-        req.transaction = buildTransaction("webpage");
-        req.message = msg;
-        if (mTargetScene == 0) {
-            req.scene = SendMessageToWX.Req.WXSceneSession;//好友
-        } else if (mTargetScene == 1) {
-            req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
-        }
-        MyApplication.WXapi.sendReq(req);
     }
 
     //分享小程序

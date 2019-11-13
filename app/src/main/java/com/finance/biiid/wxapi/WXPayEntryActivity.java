@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Window;
 
@@ -34,7 +35,6 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 
         MyApplication.WXapi.handleIntent(getIntent(), this);
 
-//        TestPay.getOrder();
         pay();
     }
 
@@ -85,13 +85,13 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
     private void pay() {
         Intent intent = getIntent();
         String mData = intent.getStringExtra("data");
-        PayData bean=new Gson().fromJson(mData,PayData.class);
+        PayData bean = new Gson().fromJson(mData, PayData.class);
         PayReq req = new PayReq();
         req.appId = Constants.APP_ID;
         req.partnerId = bean.getPartnerid();
         req.prepayId = bean.getPrepayid();
         req.nonceStr = bean.getNoncestr();
-        req.timeStamp = bean.getTimestamp()+"";
+        req.timeStamp = bean.getTimestamp() + "";
         req.packageValue = bean.getPackageX();
         req.sign = bean.getSign();
         req.extData = "app data"; // optional

@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -193,7 +194,7 @@ public class MainActivity extends BaseActivity {
             vLine.setVisibility(View.VISIBLE);
             view.clearCache(true);
             view.clearHistory();
-            webView.loadUrl(url);//后面不带 '/' 打不开
+//            webView.loadUrl(url);//后面不带 '/' 打不开
         });
     }
 
@@ -248,6 +249,10 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void wechatPay(String data) {
             Log.e("tag ", "js to android wechatPay=" + data);
+            if (TextUtils.isEmpty(data)) {
+                shortTip(R.string.pay_fail);
+                return;
+            }
             gotoWxPayActivity(data);
         }
 
@@ -259,26 +264,18 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void wechatLogin(String data) {
-            Log.e("tag ", "js to android wechatLogin"+data);
-            gotoWxAuthActivity(data);
+            Log.e("tag ", "js to android wechatLogin" + data);
+            gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
         }
 
         @JavascriptInterface
         public void checkWechatLoginStatus(String data) {
             Log.e("tag ", "js to android checkWechatLoginStatus");
-            gotoWxAuthActivity(data);
+            gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
         }
     }
 
-    //微信授权登录
-    private void gotoWxAuthActivity(String data) {
-        Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
-        intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_AUTH);
-        intent.putExtra("data", data);
-        startActivity(intent);
-    }
-
-    //分享
+    //分享 授权登录
     private void gotoWxActivity(int type, String data) {
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
         intent.putExtra(AppConfig.WX_TYPE, type);
@@ -509,9 +506,9 @@ public class MainActivity extends BaseActivity {
             return;
         }
         if (id == CommonNotifications.weChatData) {
-            String d1= (String) args[0];
-            String d2= (String) args[1];
-            wxChatAuthSuccess(d1,d2);
+            String d1 = (String) args[0];
+            String d2 = (String) args[1];
+            wxChatAuthSuccess(d1, d2);
         }
     }
 }

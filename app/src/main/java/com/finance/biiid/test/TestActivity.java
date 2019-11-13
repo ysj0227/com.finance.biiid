@@ -1,13 +1,11 @@
 package com.finance.biiid.test;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
@@ -16,24 +14,12 @@ import com.finance.biiid.wxapi.WXPayEntryActivity;
 import com.tencent.mm.opensdk.constants.Build;
 
 
-public class TestActivity extends AppCompatActivity {
+public class TestActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        BaseHttpApi.post("", null, new StringCallback() {
-//            @Override
-//            public void onError(Call call, Response response, Exception e, int id) {
-//
-//            }
-//
-//            @Override
-//            public void onResponse(String response, int id) {
-//
-//            }
-//        });
         Button button = findViewById(R.id.button);
         Button button2 = findViewById(R.id.button2);
         Button button3 = findViewById(R.id.button3);
@@ -82,6 +68,10 @@ public class TestActivity extends AppCompatActivity {
     private void checkPaySupport(){
         boolean isPaySupported = MyApplication.WXapi.getWXAppSupportAPI() >= Build.PAY_SUPPORTED_SDK_INT;
         Toast.makeText(TestActivity.this, String.valueOf(isPaySupported), Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void aa(){
     }
 
 }
