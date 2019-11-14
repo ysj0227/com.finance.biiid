@@ -38,11 +38,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.notifications.CommonNotifications;
+import com.finance.biiid.previewimg.ImageBigActivity_;
 import com.finance.biiid.utils.BitmapUtils;
+import com.finance.biiid.utils.SpUtils;
 import com.finance.biiid.webview.SMWebViewClient;
 import com.finance.biiid.wxapi.WXEntryActivity;
 import com.finance.biiid.wxapi.WXPayEntryActivity;
@@ -60,6 +63,7 @@ import org.androidannotations.annotations.ViewById;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -225,8 +229,20 @@ public class MainActivity extends BaseActivity {
             JSONObject object2 = JSONObject.parseObject(d2);
             object.putAll(object1);
             object.putAll(object2);
-            Log.e("tag", "1111 wxChatAuthSuccess= " + object.toString());
             webView.loadUrl("javascript:getUserLoginInfo" + "('" + object.toString() + "')");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @UiThread
+    void checkWechatLoginStatus(int type) {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("refresh_token", SpUtils.getWXRefreshToken());
+            object.put("unionid", SpUtils.getWXUnionid());
+            object.put("type", type);
+            webView.loadUrl("javascript:checkWechatLoginStatus" + "('" + object.toString() + "')");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -269,10 +285,33 @@ public class MainActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public void checkWechatLoginStatus(String data) {
-            Log.e("tag ", "js to android checkWechatLoginStatus");
-            gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
+        public void previewImage(String data) {
+            Log.e("tag ", "js to android previewImage" + data);
+            gotoPreviewImage(data);
         }
+
+        @JavascriptInterface
+        public void getRefreshToken(int type) {
+            Log.e("tag ", "js to android getRefreshToken" + type);
+            checkWechatLoginStatus(type);
+        }
+    }
+
+    private void gotoPreviewImage(String data) {
+        if (TextUtils.isEmpty(data)) {
+            return;
+        }
+        JSONObject object = JSONObject.parseObject(data);
+        int currentPosition = object.getIntValue("currentPosition");
+        JSONArray array = object.getJSONArray("imagesUrl");
+        ArrayList<String> imagesList = new ArrayList<>();
+        for (int i = 0; i < array.size(); i++) {
+            imagesList.add(array.get(i).toString());
+        }
+        ImageBigActivity_.intent(this)
+                .imagesUrl(imagesList)
+                .current(currentPosition)
+                .start();
     }
 
     //分享 授权登录

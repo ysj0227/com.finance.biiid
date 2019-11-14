@@ -74,6 +74,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".test.SelectPictureActivity_" />
+        <activity android:name=".previewimg.ImageBigActivity_" />
 
     </application>
 

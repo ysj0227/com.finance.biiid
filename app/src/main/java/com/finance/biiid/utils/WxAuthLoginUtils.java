@@ -58,6 +58,8 @@ public class WxAuthLoginUtils {
      */
     public static void getUserInfo(Activity context, String data) {
         WxTokenData bean = new Gson().fromJson(data, WxTokenData.class);
+        SpUtils.saveWXRefreshToken(bean.getRefresh_token());
+        SpUtils.saveWXUnionid(bean.getUnionid());
         Map<String, String> params = new HashMap<>();
         params.put("access_token", bean.getAccess_token());
         params.put("openid", bean.getOpenid());

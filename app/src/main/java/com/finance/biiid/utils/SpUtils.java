@@ -8,7 +8,8 @@ import com.finance.commonlib.utils.SharedManager;
 
 public class SpUtils {
 
-    private static final String UDP_ROUTER = "UDP_ROUTER";
+    private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
+    private static final String UNIONID = "UNIONID";
 
     SpUtils() {
     }
@@ -17,17 +18,20 @@ public class SpUtils {
         return SharedManager.getSharedPreference(BaseApplication.getContext());
     }
 
-    public static void saveUDPName(String name) {
-        SharedManager.putValue(BaseApplication.getContext(), UDP_ROUTER, name);
+    public static void saveWXRefreshToken(String refreshToken) {
+        SharedManager.putValue(BaseApplication.getContext(), REFRESH_TOKEN, refreshToken);
     }
 
-    public static void clearUDPName() {
-        SharedManager.clearValue(BaseApplication.getContext(), UDP_ROUTER);
+    public static String getWXRefreshToken() {
+        return SharedManager.getValue(BaseApplication.getContext(), REFRESH_TOKEN);
     }
 
-    public static String getUDPName() {
-        return SharedManager.getValue(BaseApplication.getContext(), UDP_ROUTER);
+    public static void saveWXUnionid(String unionid) {
+        SharedManager.putValue(BaseApplication.getContext(), UNIONID, unionid);
     }
 
+    public static String getWXUnionid() {
+        return SharedManager.getValue(BaseApplication.getContext(), UNIONID);
+    }
 
 }

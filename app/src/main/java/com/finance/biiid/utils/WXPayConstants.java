@@ -45,5 +45,6 @@ public class WXPayConstants {
 
     public static final String AUTH_ACCESS_TOKEN = "https://api.weixin.qq.com/sns/oauth2/access_token?";
     public static final String USER_INFO= "https://api.weixin.qq.com/sns/userinfo?";
+    public static final String PAY_QUERY_ORDER= "https://api.mch.weixin.qq.com/pay/orderquery?";
 
 }

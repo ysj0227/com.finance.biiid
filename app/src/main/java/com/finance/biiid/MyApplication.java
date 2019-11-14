@@ -2,6 +2,7 @@ package com.finance.biiid;
 
 
 import com.finance.biiid.config.Constants;
+import com.finance.commonlib.base.BaseApplication;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
@@ -11,7 +12,7 @@ import org.litepal.LitePalApplication;
  * Created by shiJie.yang on 2018/5/24.
  */
 
-public class MyApplication extends LitePalApplication {
+public class MyApplication extends BaseApplication {
     public static IWXAPI WXapi; //第三方app和微信通信的openapi接口
 
     @Override
@@ -19,7 +20,6 @@ public class MyApplication extends LitePalApplication {
         super.onCreate();
         //微信分享初始化
         createWXAPI();
-
     }
 
     //初始化微信分享

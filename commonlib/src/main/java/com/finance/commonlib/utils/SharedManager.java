@@ -7,7 +7,7 @@ import android.text.TextUtils;
 
 public class SharedManager {
 
-    private static final String SHARED_NAME = "cache_android_wireless"; //默认缓存文件名
+    private static final String SHARED_NAME = "cache_android_btddq"; //默认缓存文件名
 
     public static SharedPreferences getSharedPreference(Context context) {
         return context.getSharedPreferences(SHARED_NAME, Context.MODE_PRIVATE);
