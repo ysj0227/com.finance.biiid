@@ -14,6 +14,7 @@ import com.finance.biiid.R;
 import com.finance.commonlib.base.BaseActivity;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
@@ -66,4 +67,8 @@ public class ImageBigActivity extends BaseActivity {
         });
     }
 
+    @Click(R.id.iv_back)
+    void backClick() {
+        finish();
+    }
 }
