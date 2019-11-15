@@ -32,6 +32,8 @@ public class PayData {
     private String prepayid;
     @SerializedName("sign")
     private String sign;
+    @SerializedName("outtradeno")
+    private String outtradeno;
 
     public String getAppid() {
         return appid;
@@ -88,4 +90,13 @@ public class PayData {
     public void setSign(String sign) {
         this.sign = sign;
     }
+
+    public String getOuttradeno() {
+        return outtradeno;
+    }
+
+    public void setOuttradeno(String outtradeno) {
+        this.outtradeno = outtradeno;
+    }
 }
+
