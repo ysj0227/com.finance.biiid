@@ -20,6 +20,11 @@ public class AppConfig {
      * 线上地址
      */
     public final static String URL_RELEASE = "https://wei.bidddq.com/ddq_front/entrance.html";
+    
+    /**
+     * 查询支付订单
+     */
+    public final static String QUERY_TRADE_STATUS = "https://pai.qianyusoft.cn/ddq/appQueryWxOrder";
 
     /**
      * 微信分享登录
