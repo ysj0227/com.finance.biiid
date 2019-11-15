@@ -190,4 +190,39 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             }
         });
     }
+    /**
+     * 查询订单支付状态
+     */
+    private void queryTradeStatus() {
+        Map<String, String> params = new HashMap<>();
+        params.put("out_trade_no", outTradeNo);
+        BaseHttpApi.post(AppConfig.QUERY_TRADE_STATUS, params, new StringCallback() {
+            @Override
+            public void onError(Call call, Response response, Exception e, int id) {
+                Log.e(TAG, "queryTradeStatus error=" + response.toString());
+                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_exception), R.mipmap.ic_pay_fail);
+            }
+
+            @Override
+            public void onResponse(String response, int id) {
+                Log.e(TAG, "queryTradeStatus onResponse="+response);
+                queryResult(response);
+            }
+        });
+    }
+
+    private void queryResult(String response) {
+        try {
+            JSONObject object = new JSONObject(response);
+            int code = object.getInt("code");
+            String msg = object.getString("msg");
+            if (code == 0) {
+                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_success), R.mipmap.ic_pay_success);
+            } else {
+                PayDialog.result(WXPayEntryActivity.this, TextUtils.isEmpty(msg) ? getString(R.string.pay_exception) : msg, R.mipmap.ic_pay_fail);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }
