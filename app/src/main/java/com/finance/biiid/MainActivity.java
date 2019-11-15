@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -65,6 +66,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressLint("Registered")
@@ -258,13 +260,13 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void wechatShare(String data) {
-            Log.e("tag ", "js to android wechatShare=" + data);
+            Log.d("tag ", "js to android wechatShare=" + data);
             showDialog(MainActivity.this, TYPE_SHARE, data);
         }
 
         @JavascriptInterface
         public void wechatPay(String data) {
-            Log.e("tag ", "js to android wechatPay=" + data);
+            Log.d("tag ", "js to android wechatPay=" + data);
             if (TextUtils.isEmpty(data)) {
                 shortTip(R.string.pay_fail);
                 return;
@@ -274,25 +276,25 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void getPicture() {
-            Log.e("tag ", "js to android getPicture");
+            Log.d("tag ", "js to android getPicture");
             showDialog(MainActivity.this, TYPE_CANER, "");
         }
 
         @JavascriptInterface
         public void wechatLogin(String data) {
-            Log.e("tag ", "js to android wechatLogin" + data);
+            Log.d("tag ", "js to android wechatLogin" + data);
             gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
         }
 
         @JavascriptInterface
         public void previewImage(String data) {
-            Log.e("tag ", "js to android previewImage" + data);
+            Log.d("tag ", "js to android previewImage" + data);
             gotoPreviewImage(data);
         }
 
         @JavascriptInterface
         public void getRefreshToken(int type) {
-            Log.e("tag ", "js to android getRefreshToken" + type);
+            Log.d("tag ", "js to android getRefreshToken" + type);
             checkWechatLoginStatus(type);
         }
     }
@@ -314,8 +316,30 @@ public class MainActivity extends BaseActivity {
                 .start();
     }
 
+    /**
+     * 是否安装微信
+     * @return
+     */
+    private boolean isInstallWechat() {
+        final PackageManager packageManager = context.getPackageManager();// 获取packagemanager
+        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);// 获取所
+        if (pinfo != null) {
+            for (int i = 0; i < pinfo.size(); i++) {
+                String pn = pinfo.get(i).packageName;
+                if (pn.equals("com.tencent.mm")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //分享 授权登录
     private void gotoWxActivity(int type, String data) {
+        if (!isInstallWechat()){
+            shortTip(R.string.str_need_install_wx);
+            return;
+        }
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
         intent.putExtra(AppConfig.WX_TYPE, type);
         intent.putExtra("data", data);
@@ -324,6 +348,10 @@ public class MainActivity extends BaseActivity {
 
     //跳转微信支付
     private void gotoWxPayActivity(String data) {
+        if (!isInstallWechat()){
+            shortTip(R.string.str_need_install_wx);
+            return;
+        }
         //是否支持微信支付
         boolean isPaySupported = MyApplication.WXapi.getWXAppSupportAPI() >= com.tencent.mm.opensdk.constants.Build.PAY_SUPPORTED_SDK_INT;
         if (isPaySupported) {
@@ -364,11 +392,11 @@ public class MainActivity extends BaseActivity {
         TextView textDown = inflate.findViewById(R.id.tvDown);
         TextView textCancel = inflate.findViewById(R.id.tvCancel);
         if (type == TYPE_SHARE) {
-            textUp.setText("分享到微信好友");
-            textDown.setText("分享到朋友圈");
+            textUp.setText(getString(R.string.wx_share_session));
+            textDown.setText(getString(R.string.wx_share_timeline));
         } else if (type == TYPE_CANER) {
-            textUp.setText("拍照");
-            textDown.setText("从相册选择");
+            textUp.setText(getString(R.string.str_take_photo));
+            textDown.setText(getString(R.string.str_select_album));
         }
         //on click
         View.OnClickListener listener = v -> {
@@ -378,7 +406,11 @@ public class MainActivity extends BaseActivity {
                 if (i == R.id.tvUp) {
                     gotoWxActivity(AppConfig.WX_TYPE_FRIEND, data);
                 } else if (i == R.id.tvDown) {
-                    gotoWxActivity(AppConfig.WX_TYPE_TIMELINE, data);
+                    if (MyApplication.WXapi.getWXAppSupportAPI() >= com.tencent.mm.opensdk.constants.Build.TIMELINE_SUPPORTED_SDK_INT) {
+                        gotoWxActivity(AppConfig.WX_TYPE_TIMELINE, data);
+                    } else {
+                        shortTip(R.string.wx_version_no_support_timeline);
+                    }
                 }
             } else if (type == TYPE_CANER) {
                 if (i == R.id.tvUp) {
@@ -464,7 +496,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_CAMERA:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

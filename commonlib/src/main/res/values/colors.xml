@@ -5,6 +5,7 @@
     <color name="common_orange">#FF6000</color>      <!--应用主色调-->
     <color name="common_orange_20a">#33FF6000</color><!--主色调20%透明-->
     <color name="common_orange_60a">#99FF6000</color><!--主色调60%透明-->
+    <color name="common_orange_80a">#CCFF6000</color><!--主色调60%透明-->
 
     <!--文字颜色-->
     <color name="text_main">#303540</color>          <!--主要-->

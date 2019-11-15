@@ -11,7 +11,7 @@
         android:useLevel="false">
 
         <gradient
-            android:centerColor="@color/common_orange_60a"
+            android:centerColor="@color/common_orange_80a"
             android:centerY="0.50"
             android:endColor="@color/common_orange"
             android:startColor="@color/transparent"

@@ -12,13 +12,10 @@ import android.widget.Toast;
 
 import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
+import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.Constants;
 import com.finance.biiid.model.PayData;
-import com.finance.biiid.model.WxTokenData;
 import com.finance.biiid.utils.PayDialog;
-import com.finance.biiid.utils.WXPayConstants;
-import com.finance.biiid.utils.WXPayUtil;
-import com.finance.commonlib.http.BaseHttpApi;
 import com.finance.commonlib.utils.HttpsUtils;
 import com.google.gson.Gson;
 import com.tencent.mm.opensdk.constants.ConstantsAPI;
@@ -26,11 +23,11 @@ import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
-import com.zhy.http.okhttp.callback.StringCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,14 +40,14 @@ import okhttp3.Response;
 public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 
     private static final String TAG = "WXPayEntryActivity";
-    private PayData bean;
+    private String outTradeNo;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.pay_result);
-
+        MyApplication.WXapi.handleIntent(getIntent(), this);
         Intent intent = getIntent();
         String mData = intent.getStringExtra("data");
         if (TextUtils.isEmpty(mData)) {
@@ -58,8 +55,6 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             finish();
             return;
         }
-        MyApplication.WXapi.handleIntent(getIntent(), this);
-        bean = new Gson().fromJson(mData, PayData.class);
         pay();
     }
 
@@ -77,33 +72,26 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
     @SuppressLint("StringFormatInvalid")
     @Override
     public void onResp(BaseResp resp) {
-        Log.e(TAG, "onPayFinish, errCode = " + resp.errCode);
+        Log.d(TAG, "onPayFinish, errCode = " + resp.errCode);
         if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
             int errCode = resp.errCode;
-            String tip = "";
-            int backgroundResource;
+            String tip;
             // 0 则代表支付成功
             // -1为支付失败，包括用户主动取消支付，或者系统返回的错误
             // -2为取消支付，或者系统返回的错误
             // 其他为系统返回的错误
             if (errCode == 0) {
-                String transaction = resp.transaction;
-                Log.e(TAG,"transaction="+transaction);
-                tip = getString(R.string.pay_success);
-                backgroundResource = R.mipmap.ic_pay_success;
-//                queryOrder(transaction);
-//                return;
-            }else if (errCode == -1) {
+                queryTradeStatus();
+                return;
+            }
+            if (errCode == -1) {
                 tip = getString(R.string.pay_fail);
-                backgroundResource = R.mipmap.ic_pay_fail;
             } else if (errCode == -2) {
                 tip = getString(R.string.pay_cancel);
-                backgroundResource = R.mipmap.ic_pay_fail;
             } else {
                 tip = getString(R.string.pay_error);
-                backgroundResource = R.mipmap.ic_pay_fail;
             }
-            PayDialog.result(this, tip, backgroundResource);
+            PayDialog.result(this, tip, R.mipmap.ic_pay_fail);
         }
     }
 
@@ -111,6 +99,10 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
      * 开启支付
      */
     private void pay() {
+        Intent intent = getIntent();
+        String mData = intent.getStringExtra("data");
+        PayData bean = new Gson().fromJson(mData, PayData.class);
+        outTradeNo = bean.getOuttradeno();
         PayReq req = new PayReq();
         req.appId = Constants.APP_ID;
         req.partnerId = bean.getPartnerid();
@@ -119,47 +111,23 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
         req.timeStamp = bean.getTimestamp() + "";
         req.packageValue = bean.getPackageX();
         req.sign = bean.getSign();
-        req.extData = "app data"; // optional
+        req.extData = "app_ddq_pay"; // optional
         MyApplication.WXapi.sendReq(req);
     }
 
-
-    public Map<String, String> getPreParams(String transaction_id) {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("appid", bean.getAppid());//App ID
-        params.put("mch_id", bean.getPartnerid());//商户号
-        params.put("nonce_str", WXPayUtil.generateNonceStr());//随机字符串
-        params.put("transaction_id", transaction_id);//订单号
+    private void queryTradeStatus() {
+        JSONObject object = new JSONObject();
         try {
-            params.put("sign", WXPayUtil.generateSignature(params, Constants.API_KEY));//签名
-        } catch (Exception e) {
+            object.put("out_trade_no", outTradeNo);
+        } catch (JSONException e) {
             e.printStackTrace();
-        }
-        return params;
-    }
-
-    /**
-     * 查询订单
-     * @param transaction_id
-     */
-    private void queryOrder(String transaction_id) {
-        Map<String, String> params = getPreParams(transaction_id);
-        String xml = null;
-        try {
-            xml = WXPayUtil.mapToXml(params);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (TextUtils.isEmpty(xml)) {
-            Log.e("TAG", "getOrder: 组装参数出错");
-            return;
         }
         //requestBody
-        MediaType XML = MediaType.parse("application/xml; charset=utf-8");
-        RequestBody requestBody = RequestBody.create(XML, xml);
+        MediaType json = MediaType.parse("application/json; charset=utf-8");
+        RequestBody requestBody = RequestBody.create(json, object.toString());
         //requestBody
         Request.Builder request = new Request.Builder()
-                .url(WXPayConstants.PAY_QUERY_ORDER).post(requestBody);
+                .url(AppConfig.QUERY_TRADE_STATUS).post(requestBody);
         //OkHttpClient
         OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
         HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory();
@@ -171,42 +139,15 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e("TAG", "onFailure");
-                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_error), R.mipmap.ic_pay_fail);
+                Log.d("TAG", "pay trade onFailure");
+                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_exception), R.mipmap.ic_pay_fail);
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String res = response.body().string();
-                Log.e("TAG", "onResponse=" + res);
-//                try {
-//                    Map<String, String> map = WXPayUtil.xmlToMap(res);
-//                    String trade_type = map.get("trade_type");
-//                    Log.i("TAG", "onResponse=" + trade_type);
-//                    PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_success), R.mipmap.ic_pay_success);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-            }
-        });
-    }
-    /**
-     * 查询订单支付状态
-     */
-    private void queryTradeStatus() {
-        Map<String, String> params = new HashMap<>();
-        params.put("out_trade_no", outTradeNo);
-        BaseHttpApi.post(AppConfig.QUERY_TRADE_STATUS, params, new StringCallback() {
-            @Override
-            public void onError(Call call, Response response, Exception e, int id) {
-                Log.e(TAG, "queryTradeStatus error=" + response.toString());
-                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_exception), R.mipmap.ic_pay_fail);
-            }
-
-            @Override
-            public void onResponse(String response, int id) {
-                Log.e(TAG, "queryTradeStatus onResponse="+response);
-                queryResult(response);
+                Log.d("TAG", "pay trade onResponse=" + res);
+                queryResult(res);
             }
         });
     }
@@ -214,6 +155,10 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
     private void queryResult(String response) {
         try {
             JSONObject object = new JSONObject(response);
+            if (!object.has("code")) {
+                PayDialog.result(WXPayEntryActivity.this, getString(R.string.pay_error), R.mipmap.ic_pay_fail);
+                return;
+            }
             int code = object.getInt("code");
             String msg = object.getString("msg");
             if (code == 0) {
@@ -225,4 +170,5 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             e.printStackTrace();
         }
     }
+
 }

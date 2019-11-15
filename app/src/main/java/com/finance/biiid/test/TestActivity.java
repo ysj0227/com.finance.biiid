@@ -35,7 +35,7 @@ public class TestActivity extends Activity {
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HelpActivity_.intent(TestActivity.this).start();
+
             }
         });
         button3.setOnClickListener(new View.OnClickListener() {
