@@ -1,15 +1,11 @@
 package com.finance.biiid.previewimg;
 
 import android.annotation.SuppressLint;
-import android.text.TextUtils;
-import android.util.Log;
-import android.webkit.JavascriptInterface;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import androidx.viewpager.widget.ViewPager;
+
 import com.finance.biiid.R;
 import com.finance.commonlib.base.BaseActivity;
 
@@ -20,8 +16,6 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
-
-import androidx.viewpager.widget.ViewPager;
 
 /**
  * @author yangShiJie

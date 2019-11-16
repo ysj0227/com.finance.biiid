@@ -3,7 +3,7 @@
     android:id="@+id/rl_exception"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/c_divider"
+    android:background="@color/c_white"
     android:gravity="center"
     android:visibility="gone">
 
@@ -27,11 +27,11 @@
 
     <Button
         android:id="@+id/btn_again"
-        android:layout_width="@dimen/dp_180"
+        android:layout_width="@dimen/dp_160"
         android:layout_height="@dimen/dp_40"
         android:layout_below="@id/tv_net_tip"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_30"
         android:background="@drawable/edittext_soild_orange"
         android:text="@string/str_btn_try_again"
         android:textColor="@color/c_white"

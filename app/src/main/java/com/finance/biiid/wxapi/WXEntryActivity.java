@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Window;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +18,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
-import com.finance.biiid.config.Constants;
 import com.finance.biiid.model.ShareData;
 import com.finance.biiid.utils.Util;
 import com.finance.biiid.utils.WxAuthLoginUtils;
@@ -28,7 +27,6 @@ import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
-import com.tencent.mm.opensdk.modelmsg.WXMiniProgramObject;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 
@@ -47,6 +45,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_wx_transparent);//分享设置透明布局
         try {
             MyApplication.WXapi.handleIntent(getIntent(), this);
@@ -179,34 +178,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
                 }
                 MyApplication.WXapi.sendReq(req);
-                finish();
+                //finish();
             }
         });
-    }
-
-    //分享小程序
-    private void shareProgram(Bitmap loadUrlBitmap) {
-        WXMiniProgramObject miniProgram = new WXMiniProgramObject();
-        miniProgram.webpageUrl = "https://www.35wenku.com/track?uuid=abcdefgh";//自定义
-        miniProgram.userName = "gh_9e74f9420031";//小程序端提供参数
-        miniProgram.path = "pages/home/index?uuid=abcdefgh";//小程序端提供参数
-        WXMediaMessage mediaMessage = new WXMediaMessage(miniProgram);
-        mediaMessage.title = "小程序";//自定义
-        mediaMessage.description = "这是一个小程序的分享";//自定义
-        Bitmap bmp;
-        if (loadUrlBitmap == null) {//如果网络加载失败直接选取本地logo
-            bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo);
-        } else {
-            bmp = loadUrlBitmap; //网络图片
-        }
-        Bitmap sendBitmap = Bitmap.createScaledBitmap(bmp, 200, 200, true);
-        bmp.recycle();
-        mediaMessage.thumbData = Util.bmpToByteArray(sendBitmap, true);
-
-        SendMessageToWX.Req req = new SendMessageToWX.Req();
-        req.transaction = buildTransaction("miniProgram");
-        req.scene = SendMessageToWX.Req.WXSceneSession;
-        req.message = mediaMessage;
-        MyApplication.WXapi.sendReq(req);
     }
 }
