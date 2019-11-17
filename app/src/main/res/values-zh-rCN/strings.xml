@@ -30,4 +30,5 @@
     <string name="str_take_photo">拍照</string>
     <string name="str_select_album">从相册选择</string>
     <string name="str_need_install_wx">请安装微信app</string>
+    <string name="share_link_fail">分享链接失败</string>
 </resources>

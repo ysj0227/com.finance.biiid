@@ -2,7 +2,9 @@ package com.finance.biiid;
 
 
 import com.finance.biiid.config.Constants;
+import com.finance.biiid.config.InitAppConfig;
 import com.finance.commonlib.base.BaseApplication;
+import com.finance.commonlib.utils.Utils;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
@@ -18,6 +20,8 @@ public class MyApplication extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        String env = Utils.getMetaValue(this, "ENV_DATA", InitAppConfig.ENV_TEST);
+        new InitAppConfig().init(this, env);
         //微信分享初始化
         createWXAPI();
     }

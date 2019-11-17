@@ -40,7 +40,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      */
     private int wxType;
     private String mData;
-    private String appId="",appSecret="";
+    private String appId = "", appSecret = "";
+    private boolean isFirstOpen;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,9 +62,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
             //授权
             try {
-                JSONObject object=new JSONObject(mData);
-                appId=object.getString("appId");
-                appSecret=object.getString("appSecret");
+                JSONObject object = new JSONObject(mData);
+                appId = object.getString("appId");
+                appSecret = object.getString("appSecret");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -102,7 +103,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     //授权登录
                     String code = ((SendAuth.Resp) resp).code;
 //                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
-                    WxAuthLoginUtils.getToken(this,appId,appSecret,code);
+                    WxAuthLoginUtils.getToken(this, appId, appSecret, code);
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
@@ -148,13 +149,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private void shareWX(int mTargetScene, String data) {
         ShareData bean;
         if (TextUtils.isEmpty(data)) {
-             bean=new ShareData();
-             bean.setTitle("比特东东抢");
-             bean.setDesc("让文玩更好玩！");
-             bean.setLink(AppConfig.URL_RELEASE);
-             bean.setImgUrl("https://wei.bidddq.com/imgs/logo.jpg");
-        }else {
-             bean = new Gson().fromJson(data, ShareData.class);
+            bean = new ShareData();
+            bean.setTitle("比特东东抢");
+            bean.setDesc("让文玩更好玩！");
+            bean.setLink(AppConfig.URL_RELEASE);
+            bean.setImgUrl("https://wei.bidddq.com/imgs/logo.jpg");
+        } else {
+            bean = new Gson().fromJson(data, ShareData.class);
         }
         int THUMB_SIZE = 150;
         WXWebpageObject webpage = new WXWebpageObject();
@@ -162,7 +163,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = bean.getTitle();
         msg.description = bean.getDesc();
-        //0 分享好友  1 分享朋友圈
+        //0 分享好友  1 分享朋友圈 webpage
         Glide.with(this).asBitmap().load(bean.getImgUrl()).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
@@ -172,14 +173,28 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 SendMessageToWX.Req req = new SendMessageToWX.Req();
                 req.transaction = buildTransaction("webpage");
                 req.message = msg;
-                if (mTargetScene == 0) {
-                    req.scene = SendMessageToWX.Req.WXSceneSession;//好友
-                } else if (mTargetScene == 1) {
-                    req.scene = SendMessageToWX.Req.WXSceneTimeline;//朋友圈
-                }
+                req.scene = mTargetScene == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
                 MyApplication.WXapi.sendReq(req);
-                //finish();
             }
         });
+    }
+
+    //0 分享好友  1 分享朋友圈 url
+    private void shareUrl(int mTargetScene, String data) {
+        ShareData bean = new Gson().fromJson(data, ShareData.class);
+        if (TextUtils.isEmpty(bean.getTitle()) && !TextUtils.isEmpty(bean.getLink())) {
+            WXWebpageObject WebObj = new WXWebpageObject();
+            WebObj.webpageUrl = bean.getLink();
+            WXMediaMessage msg = new WXMediaMessage();
+            msg.mediaObject = WebObj;
+            SendMessageToWX.Req req = new SendMessageToWX.Req();
+            req.transaction = buildTransaction("url");
+            req.message = msg;
+            req.scene = mTargetScene == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
+            MyApplication.WXapi.sendReq(req);
+        } else {
+            Toast.makeText(this, getString(R.string.share_link_fail), Toast.LENGTH_LONG).show();
+            this.finish();
+        }
     }
 }

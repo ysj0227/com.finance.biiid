@@ -13,8 +13,8 @@ public class AppConfig {
     /**
      * 测试地址
      */
-    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_front/entrance.html";
-//    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_app/entrance.html";
+//    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_front/entrance.html";
+    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_app/entrance.html";
     /**
     /*
      * 线上地址

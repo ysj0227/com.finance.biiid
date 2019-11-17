@@ -22,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -43,6 +45,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.finance.biiid.config.AppConfig;
+import com.finance.biiid.config.InitAppConfig;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.previewimg.ImageBigActivity_;
 import com.finance.biiid.utils.BitmapUtils;
@@ -93,7 +96,7 @@ public class MainActivity extends BaseActivity {
     Button btnAgain;
 
     private Uri imageUri;
-    private String url = AppConfig.URL_TEST;
+    private int mWXType;
 
     @AfterViews
     void init() {
@@ -101,13 +104,17 @@ public class MainActivity extends BaseActivity {
         rlHeight.getLayoutParams().height = CommonHelper.statusHeight(this) +
                 CommonHelper.dp2px(this, 50);
         rlHeight.setPadding(0, CommonHelper.statusHeight(this), 0, 0);
-        loadWebView(url);
+        loadWebView(InitAppConfig.APP_URL);
         // 设置setWebChromeClient对象
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-                tvTitle.setText(title);
+                if (title.contains("http")) {
+                    tvTitle.setText(R.string.app_name);
+                } else {
+                    tvTitle.setText(title);
+                }
             }
         });
     }
@@ -119,9 +126,7 @@ public class MainActivity extends BaseActivity {
 
     @Click(R.id.iv_more)
     void moreClick() {
-        //TODO
-        // 分享的固定内容
-        showDialog(context, TYPE_SHARE, "");
+        showDialog(context, TYPE_SHARE);
     }
 
     @Override
@@ -250,6 +255,14 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * android to js 获取分享内容
+     */
+    @UiThread
+    void wechatShare() {
+        webView.loadUrl("javascript:wechatShare()");
+    }
+
     //js传递给Android
     private class JsInterface {
         private Context mContext;
@@ -261,7 +274,7 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void wechatShare(String data) {
             Log.d("tag ", "js to android wechatShare=" + data);
-            showDialog(MainActivity.this, TYPE_SHARE, data);
+            gotoWxActivity(mWXType, data);
         }
 
         @JavascriptInterface
@@ -277,7 +290,7 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void getPicture() {
             Log.d("tag ", "js to android getPicture");
-            showDialog(MainActivity.this, TYPE_CANER, "");
+            showDialog(MainActivity.this, TYPE_CANER);
         }
 
         @JavascriptInterface
@@ -299,6 +312,11 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 预览图片
+     *
+     * @param data data
+     */
     private void gotoPreviewImage(String data) {
         if (TextUtils.isEmpty(data)) {
             return;
@@ -318,6 +336,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 是否安装微信
+     *
      * @return
      */
     private boolean isInstallWechat() {
@@ -336,7 +355,7 @@ public class MainActivity extends BaseActivity {
 
     //分享 授权登录
     private void gotoWxActivity(int type, String data) {
-        if (!isInstallWechat()){
+        if (!isInstallWechat()) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
@@ -348,7 +367,7 @@ public class MainActivity extends BaseActivity {
 
     //跳转微信支付
     private void gotoWxPayActivity(String data) {
-        if (!isInstallWechat()){
+        if (!isInstallWechat()) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
@@ -365,7 +384,7 @@ public class MainActivity extends BaseActivity {
 
     private Dialog dialog;
 
-    public void showDialog(final Context getActivity, int type, String data) {
+    public void showDialog(final Context getActivity, int type) {
         dialog = new Dialog(getActivity, R.style.BottomDialog);
         View inflate = LayoutInflater.from(getActivity).inflate(R.layout.dialog_ddq, null);
         //将布局设置给Dialog
@@ -404,10 +423,12 @@ public class MainActivity extends BaseActivity {
             if (type == TYPE_SHARE) {
                 dialog.dismiss();
                 if (i == R.id.tvUp) {
-                    gotoWxActivity(AppConfig.WX_TYPE_FRIEND, data);
+                    mWXType = AppConfig.WX_TYPE_FRIEND;
+                    wechatShare();
                 } else if (i == R.id.tvDown) {
                     if (MyApplication.WXapi.getWXAppSupportAPI() >= com.tencent.mm.opensdk.constants.Build.TIMELINE_SUPPORTED_SDK_INT) {
-                        gotoWxActivity(AppConfig.WX_TYPE_TIMELINE, data);
+                        mWXType = AppConfig.WX_TYPE_TIMELINE;
+                        wechatShare();
                     } else {
                         shortTip(R.string.wx_version_no_support_timeline);
                     }
@@ -582,5 +603,28 @@ public class MainActivity extends BaseActivity {
             String d2 = (String) args[1];
             wxChatAuthSuccess(d1, d2);
         }
+    }
+
+    private void clearCache() {
+        webView.clearCache(true);
+        webView.clearHistory();
+        webView.clearFormData();
+        CookieSyncManager.createInstance(context.getApplicationContext());
+        CookieManager cookieManager = CookieManager.getInstance();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            cookieManager.removeSessionCookies(null);
+            cookieManager.removeAllCookie();
+            cookieManager.flush();
+        } else {
+            cookieManager.removeSessionCookies(null);
+            cookieManager.removeAllCookie();
+            CookieSyncManager.getInstance().sync();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        clearCache();
     }
 }

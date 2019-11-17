@@ -15,16 +15,31 @@ android {
             targetCompatibility JavaVersion.VERSION_1_8
         }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+                ENV_VALUE       : "ENV_TEST",
+                WX_APP_ID       : "wx57ca52557f7efc4c"]
+    }
+    signingConfigs {
+        sign {
+            storeFile file("../biiid.jks")
+            storePassword "12345678"
+            keyAlias "biiid"
+            keyPassword "12345678"
+        }
     }
     buildTypes {
         debug {
             manifestPlaceholders = [
+                    ENV_VALUE       : "ENV_TEST",
                     WX_APP_ID       : "wx57ca52557f7efc4c"]
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             manifestPlaceholders = [
+                    ENV_VALUE       : "ENV_RELEASE",
                     WX_APP_ID       : "wx57ca52557f7efc4c"]
+            zipAlignEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
