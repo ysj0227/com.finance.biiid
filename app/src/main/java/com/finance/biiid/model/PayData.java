@@ -34,6 +34,8 @@ public class PayData {
     private String sign;
     @SerializedName("outtradeno")
     private String outtradeno;
+    @SerializedName("url")
+    private String url;
 
     public String getAppid() {
         return appid;
@@ -97,6 +99,14 @@ public class PayData {
 
     public void setOuttradeno(String outtradeno) {
         this.outtradeno = outtradeno;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
 

@@ -55,7 +55,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         }
         Intent intent = getIntent();
         wxType = intent.getIntExtra(AppConfig.WX_TYPE, 0);
-        mData = intent.getStringExtra("data");
+        mData = intent.getStringExtra(AppConfig.WX_DATA);
         if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
             //分享
             shareWX(wxType, mData);
@@ -70,6 +70,15 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             }
             auth();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isFirstOpen){
+            finish();
+        }
+        isFirstOpen=true;
     }
 
     @Override
@@ -147,22 +156,21 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     @SuppressLint("CheckResult")
     private void shareWX(int mTargetScene, String data) {
-        ShareData bean;
-        if (TextUtils.isEmpty(data)) {
-            bean = new ShareData();
-            bean.setTitle("比特东东抢");
-            bean.setDesc("让文玩更好玩！");
-            bean.setLink(AppConfig.URL_RELEASE);
-            bean.setImgUrl("https://wei.bidddq.com/imgs/logo.jpg");
-        } else {
-            bean = new Gson().fromJson(data, ShareData.class);
+        ShareData bean = new Gson().fromJson(data, ShareData.class);
+        String title,desc;
+        if (TextUtils.isEmpty(bean.getTitle())) {
+            title=getString(R.string.app_name);
+            desc="让文玩更好玩！";
+        }else {
+            title=bean.getTitle();
+            desc=bean.getDesc();
         }
         int THUMB_SIZE = 150;
         WXWebpageObject webpage = new WXWebpageObject();
         webpage.webpageUrl = bean.getLink();
         WXMediaMessage msg = new WXMediaMessage(webpage);
-        msg.title = bean.getTitle();
-        msg.description = bean.getDesc();
+        msg.title = title;
+        msg.description = desc;
         //0 分享好友  1 分享朋友圈 webpage
         Glide.with(this).asBitmap().load(bean.getImgUrl()).into(new SimpleTarget<Bitmap>() {
             @Override

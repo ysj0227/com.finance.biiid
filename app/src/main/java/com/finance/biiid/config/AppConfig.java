@@ -30,6 +30,7 @@ public class AppConfig {
      * 微信分享登录
      */
     public final static String WX_TYPE = "WX_TYPE_DDQ";
+    public final static String WX_DATA = "WX_DATA_DDQ";
     public final static int WX_TYPE_FRIEND=0;
     public final static int WX_TYPE_TIMELINE=1;
     public final static int WX_TYPE_AUTH=2;

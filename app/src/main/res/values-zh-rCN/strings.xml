@@ -25,7 +25,7 @@
     <string name="pay_error">支付错误</string>
     <string name="pay_exception">支付异常</string>
     <string name="wx_version_no_support_timeline">当前微信版本不支持分享到朋友圈，请升级到新版本</string>
-    <string name="wx_share_session">分享到微信好友</string>
+    <string name="wx_share_session">分享给微信好友</string>
     <string name="wx_share_timeline">分享到朋友圈</string>
     <string name="str_take_photo">拍照</string>
     <string name="str_select_album">从相册选择</string>

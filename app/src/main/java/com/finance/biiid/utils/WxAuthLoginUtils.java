@@ -45,7 +45,7 @@ public class WxAuthLoginUtils {
 
             @Override
             public void onResponse(String response, int id) {
-                Log.e("tag", response);
+                Log.d("tag", response);
                 getUserInfo(context, response);
             }
         });
@@ -73,8 +73,8 @@ public class WxAuthLoginUtils {
 
             @Override
             public void onResponse(String response, int id) {
-                Log.e("tag", "******  = " + response);
-                Toast.makeText(context, response, Toast.LENGTH_LONG).show();
+                Log.d("tag", "******  = " + response);
+//                Toast.makeText(context, response, Toast.LENGTH_LONG).show();
                 BaseNotification.newInstance().postNotificationName(CommonNotifications.weChatData, data,response);
                 context.finish();
             }

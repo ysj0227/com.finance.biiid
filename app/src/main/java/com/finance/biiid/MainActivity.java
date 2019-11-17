@@ -97,6 +97,7 @@ public class MainActivity extends BaseActivity {
 
     private Uri imageUri;
     private int mWXType;
+    private String webViewUrl;
 
     @AfterViews
     void init() {
@@ -175,6 +176,8 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                Log.d(TAG, "webview onPageFinished url=" + url);
+                webViewUrl = url;
                 hideLoadingDialog();
             }
 
@@ -205,7 +208,11 @@ public class MainActivity extends BaseActivity {
             vLine.setVisibility(View.VISIBLE);
             view.clearCache(true);
             view.clearHistory();
-//            webView.loadUrl(url);//后面不带 '/' 打不开
+            if (TextUtils.isEmpty(webViewUrl)) {
+                webView.loadUrl(InitAppConfig.APP_URL);
+            } else {
+                webView.loadUrl(webViewUrl);
+            }
         });
     }
 
@@ -243,17 +250,36 @@ public class MainActivity extends BaseActivity {
     }
 
     @UiThread
-    void checkWechatLoginStatus(int type) {
+    void checkWeChatLoginStatus(int type) {
         try {
             JSONObject object = new JSONObject();
             object.put("refresh_token", SpUtils.getWXRefreshToken());
             object.put("unionid", SpUtils.getWXUnionid());
             object.put("type", type);
-            webView.loadUrl("javascript:checkWechatLoginStatus" + "('" + object.toString() + "')");
+            webView.loadUrl("javascript:checkWeChatLoginStatus" + "('" + object.toString() + "')");
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 支付完成后调用js显示支付状态
+     *
+     * @param code
+     * @param url
+     */
+    @UiThread
+    void appQueryWxOrderReturn(int code, String url) {
+        try {
+            JSONObject object = new JSONObject();
+            object.put("code", code);
+            object.put("url", url);
+            webView.loadUrl("javascript:appQueryWxOrderReturn" + "('" + object.toString() + "')");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * android to js 获取分享内容
@@ -306,9 +332,11 @@ public class MainActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public void getRefreshToken(int type) {
-            Log.d("tag ", "js to android getRefreshToken" + type);
-            checkWechatLoginStatus(type);
+        public void getRefreshToken(String data) {
+            Log.d("tag ", "js to android getRefreshToken type=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            int type = object.getInteger("type");
+            checkWeChatLoginStatus(type);
         }
     }
 
@@ -361,7 +389,7 @@ public class MainActivity extends BaseActivity {
         }
         Intent intent = new Intent(MainActivity.this, WXEntryActivity.class);
         intent.putExtra(AppConfig.WX_TYPE, type);
-        intent.putExtra("data", data);
+        intent.putExtra(AppConfig.WX_DATA, data);
         startActivity(intent);
     }
 
@@ -375,7 +403,7 @@ public class MainActivity extends BaseActivity {
         boolean isPaySupported = MyApplication.WXapi.getWXAppSupportAPI() >= com.tencent.mm.opensdk.constants.Build.PAY_SUPPORTED_SDK_INT;
         if (isPaySupported) {
             Intent intent = new Intent(MainActivity.this, WXPayEntryActivity.class);
-            intent.putExtra("data", data);
+            intent.putExtra(AppConfig.WX_DATA, data);
             startActivity(intent);
         } else {
             shortTip(R.string.wx_str_no_support_pay);
@@ -589,7 +617,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public int[] getStickNotificationId() {
-        return new int[]{CommonNotifications.weChatData};
+        return new int[]{CommonNotifications.weChatData, CommonNotifications.weChatPayStatus};
     }
 
     @Override
@@ -602,6 +630,10 @@ public class MainActivity extends BaseActivity {
             String d1 = (String) args[0];
             String d2 = (String) args[1];
             wxChatAuthSuccess(d1, d2);
+        } else if (id == CommonNotifications.weChatPayStatus) {
+            int code = (int) args[0];
+            String url = (String) args[1];
+            appQueryWxOrderReturn(code, url);
         }
     }
 
