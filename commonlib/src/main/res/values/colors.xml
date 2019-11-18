@@ -18,7 +18,7 @@
     <color name="common_fill">#F5F7FA</color>        <!--填充-->
     <color name="c_divider">#E6E8EB</color>          <!--分割线-->
 
-    <color name="assist_primary">#4B7AFA</color>     <!--辅助色-->
+    <color name="assist_primary">#3065F5</color>     <!--辅助色-->
     <color name="caution_primary">#FF3838</color>    <!--警示-->
     <color name="success_primary">#5CC826</color>    <!--成功-->
     <color name="assist_secondary">#5A97FC</color>   <!--点缀色1-->

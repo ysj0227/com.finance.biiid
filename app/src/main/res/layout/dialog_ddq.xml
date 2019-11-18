@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
         android:gravity="center"
-        android:textColor="@color/text_main"
+        android:textColor="@color/assist_primary"
         android:textSize="@dimen/sp_18" />
     <View
         android:background="@color/c_divider"
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_60"
         android:gravity="center"
-        android:textColor="@color/text_main"
+        android:textColor="@color/assist_primary"
         android:textSize="@dimen/sp_18" />
 
     <TextView
@@ -37,6 +37,6 @@
         android:layout_height="@dimen/dp_60"
         android:gravity="center"
         android:text="@string/sm_cancel"
-        android:textColor="@color/common_orange"
+        android:textColor="@color/assist_primary"
         android:textSize="@dimen/sp_18" />
 </LinearLayout>

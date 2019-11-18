@@ -22,6 +22,7 @@ import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.Constants;
+import com.finance.biiid.config.InitAppConfig;
 import com.finance.biiid.model.PayData;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.commonlib.notification.BaseNotification;
@@ -138,7 +139,7 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
         RequestBody requestBody = RequestBody.create(json, object.toString());
         //requestBody
         Request.Builder request = new Request.Builder()
-                .url(AppConfig.QUERY_TRADE_STATUS).post(requestBody);
+                .url(InitAppConfig.QUERY_TRADE_STATUS).post(requestBody);
         //OkHttpClient
         OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
         HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory();

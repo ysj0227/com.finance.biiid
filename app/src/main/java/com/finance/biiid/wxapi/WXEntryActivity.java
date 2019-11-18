@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
@@ -38,16 +39,19 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
      * 关于微信分享成功的回调：在这里着重说明必须使用微信提供的 WXEntryActivity类
      * 否则分享回调不成功
      */
+    private final String TAG = this.getClass().getSimpleName();
     private int wxType;
     private String mData;
     private String appId = "", appSecret = "";
     private boolean isFirstOpen;
+    private boolean isGoBaseResp;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_wx_transparent);//分享设置透明布局
+        Log.d(TAG, "11111 onCreate");
         try {
             MyApplication.WXapi.handleIntent(getIntent(), this);
         } catch (Exception e) {
@@ -75,10 +79,10 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     protected void onResume() {
         super.onResume();
-        if (isFirstOpen){
+        if (isFirstOpen && isGoBaseResp) {
             finish();
         }
-        isFirstOpen=true;
+        isFirstOpen = true;
     }
 
     @Override
@@ -101,6 +105,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onResp(BaseResp resp) {
         int result = 0;
+        isGoBaseResp = true;
         switch (resp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
@@ -157,13 +162,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @SuppressLint("CheckResult")
     private void shareWX(int mTargetScene, String data) {
         ShareData bean = new Gson().fromJson(data, ShareData.class);
-        String title,desc;
+        String title, desc;
         if (TextUtils.isEmpty(bean.getTitle())) {
-            title=getString(R.string.app_name);
-            desc="让文玩更好玩！";
-        }else {
-            title=bean.getTitle();
-            desc=bean.getDesc();
+            title = getString(R.string.app_name);
+            desc = "让文玩更好玩！";
+        } else {
+            title = bean.getTitle();
+            desc = bean.getDesc();
         }
         int THUMB_SIZE = 150;
         WXWebpageObject webpage = new WXWebpageObject();

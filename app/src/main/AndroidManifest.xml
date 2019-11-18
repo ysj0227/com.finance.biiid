@@ -81,7 +81,9 @@
         <activity
             android:name=".MainActivity_"
             android:screenOrientation="portrait" />
-
+        <meta-data
+            android:name="ENV_DATA"
+            android:value="${ENV_VALUE}" />
     </application>
 
 </manifest>

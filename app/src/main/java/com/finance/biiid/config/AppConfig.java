@@ -1,30 +1,22 @@
 package com.finance.biiid.config;
 
-import com.finance.commonlib.base.BaseApplication;
-import com.finance.commonlib.utils.CommonHelper;
-
 public class AppConfig {
-    /**
-     * 调取相机的fileprovider
-     */
-    public static final String FILE_PROVIDER_AUTHORITY =
-            CommonHelper.getAppPackageName(BaseApplication.getContext()) + ".fileprovider";
 
     /**
      * 测试地址
      */
 //    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_front/entrance.html";
-    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_app/entrance.html";
+//    public final static String URL_TEST = "https://pai.qianyusoft.cn/ddq_app/entrance.html";
     /**
     /*
      * 线上地址
      */
-    public final static String URL_RELEASE = "https://wei.bidddq.com/ddq_front/entrance.html";
+//    public final static String URL_RELEASE = "https://wei.bidddq.com/ddq_front/entrance.html";
     
     /**
      * 查询支付订单
      */
-    public final static String QUERY_TRADE_STATUS = "https://pai.qianyusoft.cn/ddq/appQueryWxOrder";
+//    public final static String QUERY_TRADE_STATUS = "https://pai.qianyusoft.cn/ddq/appQueryWxOrder";
 
     /**
      * 微信分享登录
