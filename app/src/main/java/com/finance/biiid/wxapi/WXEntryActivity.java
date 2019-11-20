@@ -80,7 +80,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     protected void onResume() {
         super.onResume();
         if (isFirstOpen && isGoBaseResp) {
-            finish();
+            Log.d(TAG, "11111 onResume");
+           finish();
         }
         isFirstOpen = true;
     }
@@ -105,44 +106,51 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     public void onResp(BaseResp resp) {
         int result = 0;
+        Log.d(TAG, "11111 onResp");
         isGoBaseResp = true;
         switch (resp.errCode) {
             case BaseResp.ErrCode.ERR_OK:
                 if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
+                    Log.d(TAG, "11111 onResp share");
                     //分享
                     result = R.string.errcode_success;
-                    Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                    this.finish();
+                    Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+                    WXEntryActivity.this.finish();
                 } else if (AppConfig.WX_TYPE_AUTH == wxType) {
+                    Log.d(TAG, "11111 onResp auth");
                     //授权登录
                     String code = ((SendAuth.Resp) resp).code;
 //                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
-                    WxAuthLoginUtils.getToken(this, appId, appSecret, code);
+                    WxAuthLoginUtils.getToken(WXEntryActivity.this, appId, appSecret, code);
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
+                Log.d(TAG, "11111 onResp cancel");
                 if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
                     result = R.string.errcode_cancel;
                 } else if (AppConfig.WX_TYPE_AUTH == wxType) {
                     result = R.string.auth_cancel;
                 }
-                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                this.finish();
+                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+                WXEntryActivity.this.finish();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
+                Log.d(TAG, "11111 onResp auth denied");
                 result = R.string.errcode_deny;
-                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                this.finish();
+                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+                WXEntryActivity.this.finish();
                 break;
             case BaseResp.ErrCode.ERR_UNSUPPORT:
+                Log.d(TAG, "11111 onResp err_unsupport");
                 result = R.string.errcode_unsupported;
-                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                this.finish();
+                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+                WXEntryActivity.this.finish();
                 break;
             default:
+                Log.d(TAG, "11111 onResp unknown");
                 result = R.string.errcode_unknown;
-                Toast.makeText(this, result, Toast.LENGTH_LONG).show();
-                this.finish();
+                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+                WXEntryActivity.this.finish();
                 break;
         }
     }
@@ -159,13 +167,19 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
-    @SuppressLint("CheckResult")
     private void shareWX(int mTargetScene, String data) {
+        if (TextUtils.isEmpty(data)){
+            Log.d(TAG,"1111111 isEmpty data="+data);
+            Toast.makeText(this, R.string.str_share_data_exception, Toast.LENGTH_SHORT).show();
+            WXEntryActivity.this.finish();
+            return;
+        }
+        Log.d(TAG,"1111111 data="+data);
         ShareData bean = new Gson().fromJson(data, ShareData.class);
         String title, desc;
         if (TextUtils.isEmpty(bean.getTitle())) {
             title = getString(R.string.app_name);
-            desc = "让文玩更好玩！";
+            desc = getString(R.string.str_trade_model);
         } else {
             title = bean.getTitle();
             desc = bean.getDesc();
@@ -190,24 +204,5 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 MyApplication.WXapi.sendReq(req);
             }
         });
-    }
-
-    //0 分享好友  1 分享朋友圈 url
-    private void shareUrl(int mTargetScene, String data) {
-        ShareData bean = new Gson().fromJson(data, ShareData.class);
-        if (TextUtils.isEmpty(bean.getTitle()) && !TextUtils.isEmpty(bean.getLink())) {
-            WXWebpageObject WebObj = new WXWebpageObject();
-            WebObj.webpageUrl = bean.getLink();
-            WXMediaMessage msg = new WXMediaMessage();
-            msg.mediaObject = WebObj;
-            SendMessageToWX.Req req = new SendMessageToWX.Req();
-            req.transaction = buildTransaction("url");
-            req.message = msg;
-            req.scene = mTargetScene == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
-            MyApplication.WXapi.sendReq(req);
-        } else {
-            Toast.makeText(this, getString(R.string.share_link_fail), Toast.LENGTH_LONG).show();
-            this.finish();
-        }
     }
 }

@@ -111,7 +111,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-                if (title.contains("http")) {
+                if (TextUtils.isEmpty(title)||title.contains("http")) {
                     tvTitle.setText(R.string.app_name);
                 } else {
                     tvTitle.setText(title);

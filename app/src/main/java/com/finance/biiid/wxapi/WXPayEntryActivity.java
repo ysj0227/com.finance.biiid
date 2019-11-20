@@ -3,19 +3,13 @@ package com.finance.biiid.wxapi;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.finance.biiid.MyApplication;
@@ -102,7 +96,7 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             } else {
                 tip = getString(R.string.pay_error);
             }
-            result(this, tip, R.mipmap.ic_pay_fail);
+            result(tip);
         }
     }
 
@@ -153,7 +147,7 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Log.d("TAG", "pay trade onFailure");
                 postJsPaySuccess(-1);
-                result(WXPayEntryActivity.this, getString(R.string.pay_exception), R.mipmap.ic_pay_fail);
+                result(getString(R.string.pay_exception));
             }
 
             @Override
@@ -171,16 +165,16 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
             JSONObject object = new JSONObject(response);
             if (!object.has("code")) {
                 postJsPaySuccess(-1);
-                result(WXPayEntryActivity.this, getString(R.string.pay_error), R.mipmap.ic_pay_fail);
+                result(getString(R.string.pay_error));
                 return;
             }
             int code = object.getInt("code");
             String msg = object.getString("msg");
             postJsPaySuccess(code);
             if (code == 0) {
-                result(WXPayEntryActivity.this, getString(R.string.pay_success), R.mipmap.ic_pay_success);
+                result( getString(R.string.pay_success));
             } else {
-                result(WXPayEntryActivity.this, TextUtils.isEmpty(msg) ? getString(R.string.pay_exception) : msg, R.mipmap.ic_pay_fail);
+                result(TextUtils.isEmpty(msg) ? getString(R.string.pay_exception) : msg);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -193,25 +187,13 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 
     /**
      * 支付结果dialog
-     * @param getActivity getActivity
      * @param tip tip
-     * @param backgroundResource backgroundResource
      */
-    private void result(Activity getActivity, String tip, int backgroundResource) {
+    private void result(String tip) {
         Handler mainHandler = new Handler(Looper.getMainLooper());
         mainHandler.post(() -> {
-            Dialog dialog = new Dialog(getActivity, R.style.BottomDialog);
-            View inflate = LayoutInflater.from(getActivity).inflate(R.layout.dialog_pay, null);
-            ImageView ivPayIcon = inflate.findViewById(R.id.iv_pay_icon);
-            TextView tvResult = inflate.findViewById(R.id.tv_result);
-            Button btnSure = inflate.findViewById(R.id.btn_sure);
-            ivPayIcon.setBackgroundResource(backgroundResource);
-            tvResult.setText(tip);
-            btnSure.setOnClickListener(v -> getActivity.finish());
-            dialog.setContentView(inflate);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.setCancelable(false);
-            dialog.show();
+            Toast.makeText(this, tip, Toast.LENGTH_SHORT).show();
+            finish();
         });
     }
 }
