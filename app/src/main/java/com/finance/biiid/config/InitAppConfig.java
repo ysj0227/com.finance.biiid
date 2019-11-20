@@ -20,7 +20,8 @@ public class InitAppConfig extends BaseConfig {
 
     @Override
     protected void initRelease(Context context, String env) {
-        APP_URL = "https://wei.bidddq.com/ddq_front/entrance.html";
-        QUERY_TRADE_STATUS = "https://pai.qianyusoft.cn/ddq/appQueryWxOrder";
+//        APP_URL = "https://wei.bidddq.com/ddq_front/entrance.html";
+        APP_URL = "https://wei.bidddq.com/ddq_app/entrance.html";
+        QUERY_TRADE_STATUS = "https://wei.bidddq.com/ddq/appQueryWxOrder";
     }
 }
