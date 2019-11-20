@@ -31,4 +31,7 @@
     <string name="str_select_album">从相册选择</string>
     <string name="str_need_install_wx">请安装微信app</string>
     <string name="share_link_fail">分享链接失败</string>
+    <string name="tip_title_upgrade">发现新版本</string>
+    <string name="tip_message_upgrade">当前的软件版本过低，部分功能已不能使用，请升级至最新版本</string>
+    <string name="tip_message_upgrade_set">当前的软件版本过低，请升级至最新版本</string>
 </resources>
