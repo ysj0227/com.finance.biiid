@@ -194,8 +194,19 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         Glide.with(this).asBitmap().load(bean.getImgUrl()).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                Log.d(TAG, "1111111 11 onResourceReady");
                 Bitmap thumbBmp = Bitmap.createScaledBitmap(resource, THUMB_SIZE, THUMB_SIZE, true);
-                resource.recycle();
+                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+                SendMessageToWX.Req req = new SendMessageToWX.Req();
+                req.transaction = buildTransaction("webpage");
+                req.message = msg;
+                req.scene = mTargetScene == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
+                MyApplication.WXapi.sendReq(req);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                Bitmap thumbBmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_logo);
                 msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
                 SendMessageToWX.Req req = new SendMessageToWX.Req();
                 req.transaction = buildTransaction("webpage");
