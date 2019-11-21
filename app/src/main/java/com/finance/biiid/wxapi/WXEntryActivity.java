@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -80,7 +82,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     protected void onResume() {
         super.onResume();
         if (isFirstOpen && isGoBaseResp) {
-            Log.d(TAG, "11111 onResume");
            finish();
         }
         isFirstOpen = true;
