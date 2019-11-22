@@ -39,11 +39,15 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.donkingliang.imageselector.utils.ImageSelector;
+import com.donkingliang.imageselector.utils.ImageUtil;
+import com.donkingliang.imageselector.utils.UriUtils;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.InitAppConfig;
 import com.finance.biiid.notifications.CommonNotifications;
@@ -111,7 +115,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-                if (TextUtils.isEmpty(title)||title.contains("http")) {
+                if (TextUtils.isEmpty(title) || title.contains("http")) {
                     tvTitle.setText(R.string.app_name);
                 } else {
                     tvTitle.setText(title);
@@ -503,27 +507,6 @@ public class MainActivity extends BaseActivity {
         startActivityForResult(intent, TAKE_PHOTO);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == TAKE_PHOTO) {  //将拍摄的照片显示出来
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
-                    postBase64String(bitmap);
-                    Toast.makeText(this, R.string.str_img_upload_success, Toast.LENGTH_SHORT).show();
-                    if (dialog != null) {
-                        dialog.dismiss();
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, R.string.str_img_upload_fail, Toast.LENGTH_LONG).show();
-                }
-            } else if (requestCode == CHOOSE_PHOTO) {
-                handleImageOnKitKat(data);
-            }
-        }
-    }
-
     private void openCamera() {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -540,7 +523,7 @@ public class MainActivity extends BaseActivity {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALBUM);
         } else {
-            openAlbum();
+            openAlbum(3);//TODO
         }
     }
 
@@ -557,17 +540,64 @@ public class MainActivity extends BaseActivity {
                 break;
             case PERMISSION_ALBUM:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlbum();
+                    openAlbum(3);//TODO
                 } else {
                     Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
                 }
         }
     }
 
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, CHOOSE_PHOTO);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == TAKE_PHOTO) {  //将拍摄的照片显示出来
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                    postBase64String(bitmap);
+                    Toast.makeText(this, R.string.str_img_upload_success, Toast.LENGTH_SHORT).show();
+                    if (dialog != null) {
+                        dialog.dismiss();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, R.string.str_img_upload_fail, Toast.LENGTH_LONG).show();
+                }
+            } else if (requestCode == CHOOSE_PHOTO) {
+//                //单选相册回调
+//                handleImageOnKitKat(data);
+
+                //获取选择器返回的数据
+                ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
+                if (BuildCompat.isAtLeastQ()) {
+                    for (int i = 0; i < images.size(); i++) {
+                        displayImage(images.get(i));
+                    }
+                } else {
+                    for (int i = 0; i < images.size(); i++) {
+                        displayImage(images.get(i));
+                    }
+                }
+            }
+        }
+    }
+//    //单选相册
+//    private void openAlbum() {
+//        Intent intent = new Intent("android.intent.action.GET_CONTENT");
+//        intent.setType("image/*");
+//        startActivityForResult(intent, CHOOSE_PHOTO);
+//    }
+
+    /**
+     * 限数量的多选(比如最多9张)三方库
+     */
+    private void openAlbum(int hasNum) {
+        ImageSelector.builder()
+                .useCamera(false) // 设置是否使用拍照
+                .setSingle(false)  //设置是否单选
+                .setMaxSelectCount(9 - hasNum) // 图片的最大选择数量，小于等于0时，不限数量。
+                .canPreview(true) //是否可以预览图片，默认为true
+                .start(this, CHOOSE_PHOTO); // 打开相册
     }
 
     private void handleImageOnKitKat(Intent data) {
@@ -604,7 +634,13 @@ public class MainActivity extends BaseActivity {
 
     private void displayImage(String imagesPath) {
         if (imagesPath != null) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imagesPath);
+            Bitmap bitmap;
+            if (BuildCompat.isAtLeastQ()) {
+                Uri uri = UriUtils.getImageContentUri(this, imagesPath);
+                bitmap = ImageUtil.getBitmapFromUri(this, uri);
+            } else {
+                bitmap = BitmapFactory.decodeFile(imagesPath);
+            }
             postBase64String(bitmap);
             Toast.makeText(this, R.string.str_img_upload_success, Toast.LENGTH_SHORT).show();
             if (dialog != null) {

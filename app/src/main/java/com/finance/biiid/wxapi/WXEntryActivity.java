@@ -1,6 +1,5 @@
 package com.finance.biiid.wxapi;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -81,8 +80,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     @Override
     protected void onResume() {
         super.onResume();
-        if (isFirstOpen && isGoBaseResp) {
-           finish();
+        Log.d(TAG, "11111 onResume" + isFirstOpen + ", isGoBaseResp=" + isGoBaseResp);
+        if (isFirstOpen ) {
+            finish();
         }
         isFirstOpen = true;
     }
@@ -116,7 +116,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     //分享
                     result = R.string.errcode_success;
                     Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
-                    WXEntryActivity.this.finish();
+                    this.finish();
                 } else if (AppConfig.WX_TYPE_AUTH == wxType) {
                     Log.d(TAG, "11111 onResp auth");
                     //授权登录
@@ -133,7 +133,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     result = R.string.auth_cancel;
                 }
                 Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
-                WXEntryActivity.this.finish();
+                this.finish();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
                 Log.d(TAG, "11111 onResp auth denied");
@@ -145,13 +145,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 Log.d(TAG, "11111 onResp err_unsupport");
                 result = R.string.errcode_unsupported;
                 Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
-                WXEntryActivity.this.finish();
+                this.finish();
                 break;
             default:
                 Log.d(TAG, "11111 onResp unknown");
                 result = R.string.errcode_unknown;
                 Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
-                WXEntryActivity.this.finish();
+                this.finish();
                 break;
         }
     }
@@ -169,13 +169,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     }
 
     private void shareWX(int mTargetScene, String data) {
-        if (TextUtils.isEmpty(data)){
-            Log.d(TAG,"1111111 isEmpty data="+data);
-            Toast.makeText(this, R.string.str_share_data_exception, Toast.LENGTH_SHORT).show();
-            WXEntryActivity.this.finish();
+        if (TextUtils.isEmpty(data)) {
+            Log.d(TAG, "1111111 onResp isEmpty data=" + data);
+//            Toast.makeText(this, R.string.str_share_data_exception, Toast.LENGTH_SHORT).show();
+            this.finish();
             return;
         }
-        Log.d(TAG,"1111111 data="+data);
+        Log.d(TAG, "1111111 data=" + data);
         ShareData bean = new Gson().fromJson(data, ShareData.class);
         String title, desc;
         if (TextUtils.isEmpty(bean.getTitle())) {

@@ -81,6 +81,17 @@
         <activity
             android:name=".MainActivity_"
             android:screenOrientation="portrait" />
+        //图片选择Activity
+        <activity
+            android:name="com.donkingliang.imageselector.ImageSelectorActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        //图片预览Activity
+        <activity
+            android:name="com.donkingliang.imageselector.PreviewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <meta-data
             android:name="ENV_DATA"
             android:value="${ENV_VALUE}" />

@@ -7,12 +7,12 @@ import android.view.ViewGroup;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import uk.co.senab.photoview.PhotoView;
 
 /**
  * @author yangShiJie
