@@ -127,19 +127,19 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
                 Log.d(TAG, "11111 onResp cancel");
-                if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
-                    result = R.string.errcode_cancel;
-                } else if (AppConfig.WX_TYPE_AUTH == wxType) {
-                    result = R.string.auth_cancel;
-                }
-                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+//                if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
+//                    result = R.string.errcode_cancel;
+//                } else if (AppConfig.WX_TYPE_AUTH == wxType) {
+//                    result = R.string.auth_cancel;
+//                }
+//                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
                 this.finish();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
                 Log.d(TAG, "11111 onResp auth denied");
                 result = R.string.errcode_deny;
                 Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
-                WXEntryActivity.this.finish();
+                this.finish();
                 break;
             case BaseResp.ErrCode.ERR_UNSUPPORT:
                 Log.d(TAG, "11111 onResp err_unsupport");
@@ -149,8 +149,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 break;
             default:
                 Log.d(TAG, "11111 onResp unknown");
-                result = R.string.errcode_unknown;
-                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
+//                result = R.string.errcode_unknown;
+//                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
                 this.finish();
                 break;
         }

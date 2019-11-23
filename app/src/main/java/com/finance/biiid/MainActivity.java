@@ -31,6 +31,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +51,7 @@ import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.config.InitAppConfig;
+import com.finance.biiid.config.WxShareConfig;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.previewimg.ImageBigActivity_;
 import com.finance.biiid.utils.BitmapUtils;
@@ -98,6 +100,8 @@ public class MainActivity extends BaseActivity {
     RelativeLayout rlException;
     @ViewById(R.id.btn_again)
     Button btnAgain;
+    @ViewById(R.id.iv_more)
+    ImageView ivMore;
 
     private Uri imageUri;
     private int mWXType;
@@ -115,6 +119,11 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
+                if (WxShareConfig.isHideShare(title)) {
+                    ivMore.setVisibility(View.GONE);
+                } else {
+                    ivMore.setVisibility(View.VISIBLE);
+                }
                 if (TextUtils.isEmpty(title) || title.contains("http")) {
                     tvTitle.setText(R.string.app_name);
                 } else {
@@ -212,11 +221,11 @@ public class MainActivity extends BaseActivity {
             vLine.setVisibility(View.VISIBLE);
             view.clearCache(true);
             view.clearHistory();
-            if (TextUtils.isEmpty(webViewUrl)) {
-                webView.loadUrl(InitAppConfig.APP_URL);
-            } else {
-                webView.loadUrl(webViewUrl);
-            }
+//            if (TextUtils.isEmpty(webViewUrl)) {
+//                webView.loadUrl(InitAppConfig.APP_URL);
+//            } else {
+//                webView.loadUrl(webViewUrl);
+//            }
         });
     }
 
