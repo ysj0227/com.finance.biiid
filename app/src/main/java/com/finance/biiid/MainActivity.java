@@ -221,11 +221,11 @@ public class MainActivity extends BaseActivity {
             vLine.setVisibility(View.VISIBLE);
             view.clearCache(true);
             view.clearHistory();
-//            if (TextUtils.isEmpty(webViewUrl)) {
-//                webView.loadUrl(InitAppConfig.APP_URL);
-//            } else {
-//                webView.loadUrl(webViewUrl);
-//            }
+            if (TextUtils.isEmpty(webViewUrl)) {
+                webView.loadUrl(InitAppConfig.APP_URL);
+            } else {
+                webView.loadUrl(webViewUrl);
+            }
         });
     }
 
