@@ -36,12 +36,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -78,6 +72,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
+
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_webview)
 public class MainActivity extends BaseActivity {
@@ -106,6 +106,7 @@ public class MainActivity extends BaseActivity {
     private Uri imageUri;
     private int mWXType;
     private String webViewUrl;
+    private int uploadPicture=9;
 
     @AfterViews
     void init() {
@@ -327,8 +328,12 @@ public class MainActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public void getPicture() {
+        public void getPicture(String data) {
             Log.d("tag ", "js to android getPicture");
+            if (!TextUtils.isEmpty(data)) {
+                JSONObject object = JSONObject.parseObject(data);
+                uploadPicture = object.getInteger("num");
+            }
             showDialog(MainActivity.this, TYPE_CANER);
         }
 
@@ -532,7 +537,7 @@ public class MainActivity extends BaseActivity {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_ALBUM);
         } else {
-            openAlbum(3);//TODO
+            openAlbum();
         }
     }
 
@@ -549,10 +554,14 @@ public class MainActivity extends BaseActivity {
                 break;
             case PERMISSION_ALBUM:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openAlbum(3);//TODO
+                    openAlbum();
                 } else {
                     Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
                 }
+                break;
+            default:
+                break;
+                    
         }
     }
 
@@ -600,11 +609,11 @@ public class MainActivity extends BaseActivity {
     /**
      * 限数量的多选(比如最多9张)三方库
      */
-    private void openAlbum(int hasNum) {
+    private void openAlbum() {
         ImageSelector.builder()
                 .useCamera(false) // 设置是否使用拍照
                 .setSingle(false)  //设置是否单选
-                .setMaxSelectCount(9 - hasNum) // 图片的最大选择数量，小于等于0时，不限数量。
+                .setMaxSelectCount(uploadPicture) // 图片的最大选择数量，小于等于0时，不限数量。
                 .canPreview(true) //是否可以预览图片，默认为true
                 .start(this, CHOOSE_PHOTO); // 打开相册
     }
