@@ -146,7 +146,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (webView.canGoBack()) {
+        if (webView.canGoBack() && !webViewUrl.contains(InitAppConfig.APP_URL)) {
             webView.goBack();
         } else {
             super.onBackPressed();
