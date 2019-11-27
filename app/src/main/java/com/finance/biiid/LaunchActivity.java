@@ -13,6 +13,15 @@ import org.androidannotations.annotations.EActivity;
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_launch)
 public class LaunchActivity extends BaseActivity {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (!isTaskRoot()) {
+            finish();
+        }
+    }
+
     @AfterViews
     void init() {
         StatusBarUtils.setStatusBarColor(this);
