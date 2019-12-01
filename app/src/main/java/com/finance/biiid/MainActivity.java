@@ -36,6 +36,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -72,12 +78,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
-
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_webview)
 public class MainActivity extends BaseActivity {
@@ -102,11 +102,13 @@ public class MainActivity extends BaseActivity {
     Button btnAgain;
     @ViewById(R.id.iv_more)
     ImageView ivMore;
+    @ViewById(R.id.iv_back)
+    ImageView ivBack;
 
     private Uri imageUri;
     private int mWXType;
     private String webViewUrl;
-    private int uploadPicture=9;
+    private int uploadPicture = 9;
 
     @AfterViews
     void init() {
@@ -120,7 +122,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onReceivedTitle(WebView view, String title) {
                 super.onReceivedTitle(view, title);
-                if (WxShareConfig.isHideShare(title)) {
+                if (WxShareConfig.isHideShare(MainActivity.this, title)) {
                     ivMore.setVisibility(View.GONE);
                 } else {
                     ivMore.setVisibility(View.VISIBLE);
@@ -146,7 +148,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        if (webView.canGoBack() && !webViewUrl.contains(InitAppConfig.APP_URL)) {
+        if (webView.canGoBack() &&
+                !webViewUrl.contains(InitAppConfig.APP_URL) &&
+                !webViewUrl.equals(InitAppConfig.APP_INDEX_PAGE)) {
             webView.goBack();
         } else {
             super.onBackPressed();
@@ -184,7 +188,6 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                showLoadingDialog();
             }
 
             @Override
@@ -192,12 +195,16 @@ public class MainActivity extends BaseActivity {
                 super.onPageFinished(view, url);
                 Log.d(TAG, "webview onPageFinished url=" + url);
                 webViewUrl = url;
-                hideLoadingDialog();
+                if (url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE) ||
+                        url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE1)) {
+                    ivBack.setVisibility(View.GONE);
+                } else {
+                    ivBack.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
             protected void receiverError(WebView view, WebResourceRequest request, WebResourceError error) {
-                hideLoadingDialog();
                 receiverExceptionError(view);
             }
         });
@@ -561,7 +568,7 @@ public class MainActivity extends BaseActivity {
                 break;
             default:
                 break;
-                    
+
         }
     }
 

@@ -1,7 +1,10 @@
 package com.finance.biiid;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Handler;
+
+import androidx.annotation.Nullable;
 
 import com.finance.commonlib.base.BaseActivity;
 import com.finance.commonlib.utils.StatusBarUtils;

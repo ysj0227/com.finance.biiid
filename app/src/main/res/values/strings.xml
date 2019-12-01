@@ -37,4 +37,21 @@
     <string name="go_upgrade">前往升级</string>
     <string name="str_share_data_exception">分享数据异常</string>
     <string name="str_trade_model">荷兰式倒退拍卖！</string>
+    <string name="title_publish">发布拍品</string>
+    <string name="title_click">点点有礼</string>
+    <string name="title_sale">分销</string>
+    <string name="title_everyday_send">每日一送</string>
+    <string name="title_contacts">联系信息</string>
+    <string name="title_order_list">订单列表</string>
+    <string name="title_qr">二维码</string>
+    <string name="title_fances">粉丝</string>
+    <string name="title_server">客服</string>
+    <string name="title_suggest">反馈</string>
+    <string name="title_balance">余额</string>
+    <string name="title_withdraw">提现</string>
+    <string name="title_mes_details">消息详情</string>
+    <string name="title_ddq_meg">东东抢消息</string>
+    <string name="title_pay_sure">支付确认</string>
+    <string name="title_free_rush">免费快抢</string>
+    <string name="title_cast">参拍</string>
 </resources>
