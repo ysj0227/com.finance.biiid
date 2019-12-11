@@ -153,8 +153,16 @@ public class MainActivity extends BaseActivity {
                 !webViewUrl.equals(InitAppConfig.APP_INDEX_PAGE)) {
             webView.goBack();
         } else {
-            super.onBackPressed();
+            backHome();
         }
+    }
+
+    private void backHome() {
+        //返回home桌面
+        Intent home = new Intent(Intent.ACTION_MAIN);
+        home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        home.addCategory(Intent.CATEGORY_HOME);
+        startActivity(home);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -195,12 +203,12 @@ public class MainActivity extends BaseActivity {
                 super.onPageFinished(view, url);
                 Log.d(TAG, "webview onPageFinished url=" + url);
                 webViewUrl = url;
-                if (url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE) ||
-                        url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE1)) {
-                    ivBack.setVisibility(View.GONE);
-                } else {
-                    ivBack.setVisibility(View.VISIBLE);
-                }
+//                if (url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE) ||
+//                        url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE1)) {
+//                    ivBack.setVisibility(View.GONE);
+//                } else {
+//                    ivBack.setVisibility(View.VISIBLE);
+//                }
             }
 
             @Override
@@ -362,6 +370,16 @@ public class MainActivity extends BaseActivity {
             JSONObject object = JSONObject.parseObject(data);
             int type = object.getInteger("type");
             checkWeChatLoginStatus(type);
+        }
+
+        @JavascriptInterface
+        public void homePage(String data) {
+            Log.d("tag ", "js to android getRefreshToken type=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            int status = object.getInteger("status");
+            if (status == 0) {
+                backHome();
+            }
         }
     }
 
