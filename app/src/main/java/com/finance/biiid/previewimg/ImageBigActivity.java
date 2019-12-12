@@ -16,6 +16,7 @@ import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * @author yangShiJie
@@ -41,7 +42,7 @@ public class ImageBigActivity extends BaseActivity {
         pagerAdapter = new PageAdapter(imagesUrl, getApplicationContext());
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(current);
-        page.setText((current + 1) + "/" + imagesUrl.size());
+        page.setText(String.format(Locale.getDefault(),"%d/%d", current + 1, imagesUrl.size()));
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -51,7 +52,7 @@ public class ImageBigActivity extends BaseActivity {
             @Override
             public void onPageSelected(int position) {
                 current = position;
-                page.setText(current + 1 + "/" + imagesUrl.size());
+                page.setText(String.format(Locale.getDefault(),"%d/%d", current + 1, imagesUrl.size()));
             }
 
             @Override
