@@ -1,5 +1,6 @@
 package com.finance.biiid.previewimg;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -41,6 +43,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.viewpager.widget.ViewPager;
 
 /**
@@ -63,6 +67,16 @@ public class ImageBigActivity extends BaseActivity {
     int current;
     private String imgUrl;
     private ExecutorService singleThreadPool;
+    /**
+     * 读写权限
+     */
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    /**
+     * 请求状态码
+     */
+    private static int REQUEST_PERMISSION_CODE = 1;
 
     @AfterViews
     void init() {
@@ -131,7 +145,7 @@ public class ImageBigActivity extends BaseActivity {
         View.OnClickListener listener = v -> {
             int i = v.getId();
             if (i == R.id.tvUp) {
-                saveAlbum();
+                checkRequestPermissions();
             } else if (i == R.id.tvDown) {
                 gotoWxActivity(imgUrl);
             }
@@ -200,7 +214,32 @@ public class ImageBigActivity extends BaseActivity {
             });
         }
     }
+    /**
+     * 检测是否需要读写权限
+     */
+    private void checkRequestPermissions() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+            } else {
+                saveAlbum();
+            }
+        }
+    }
 
+    /**
+     * 获取权限
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                saveAlbum();
+            }
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
