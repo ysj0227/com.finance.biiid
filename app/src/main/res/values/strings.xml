@@ -54,4 +54,7 @@
     <string name="title_pay_sure">支付确认</string>
     <string name="title_free_rush">免费快抢</string>
     <string name="title_cast">参拍</string>
+    <string name="save_text">保存</string>
+    <string name="save_success">保存成功</string>
+    <string name="save_fail">保存失败</string>
 </resources>
