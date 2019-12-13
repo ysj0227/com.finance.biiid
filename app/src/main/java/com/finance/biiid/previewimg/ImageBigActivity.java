@@ -19,13 +19,17 @@ import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.viewpager.widget.ViewPager;
+
 import com.bumptech.glide.Glide;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.wxapi.WXEntryActivity;
 import com.finance.commonlib.base.BaseActivity;
 import com.finance.commonlib.utils.ImageUtils;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.finance.commonlib.utils.ThreadPool;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -37,15 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.viewpager.widget.ViewPager;
 
 /**
  * @author yangShiJie
@@ -66,7 +61,6 @@ public class ImageBigActivity extends BaseActivity {
     @Extra
     int current;
     private String imgUrl;
-    private ExecutorService singleThreadPool;
     /**
      * 读写权限
      */
@@ -192,27 +186,22 @@ public class ImageBigActivity extends BaseActivity {
 
     private void saveAlbum() {
         Log.d(TAG,"11111 imgUrl="+imgUrl);
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("demo-pool-%d").build();
-        if (singleThreadPool == null) {
-            singleThreadPool = new ThreadPoolExecutor(1, 3, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-            singleThreadPool.execute(() -> {
-                try {
-                    Bitmap bitmap = Glide.with(context)
-                            .asBitmap()
-                            .load(imgUrl)
-                            .submit()
-                            .get();
-                    if (ImageUtils.saveImageToGallery(context, bitmap, 90)) {
-                        shortTip(R.string.save_success);
-                    } else {
-                        shortTip(R.string.save_fail);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+        ThreadPool.getSingleThreadPool().execute(() -> {
+            try {
+                Bitmap bitmap = Glide.with(context)
+                        .asBitmap()
+                        .load(imgUrl)
+                        .submit()
+                        .get();
+                if (ImageUtils.saveImageToGallery(context, bitmap, 90)) {
+                    shortTip(R.string.save_success);
+                } else {
+                    shortTip(R.string.save_fail);
                 }
-            });
-        }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
     }
     /**
      * 检测是否需要读写权限
@@ -243,8 +232,6 @@ public class ImageBigActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (singleThreadPool != null) {
-            singleThreadPool.shutdownNow();
-        }
+        ThreadPool.getSingleThreadPool().shutdownNow();
     }
 }

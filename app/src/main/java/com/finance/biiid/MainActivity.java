@@ -36,6 +36,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -59,7 +65,7 @@ import com.finance.commonlib.utils.CommonHelper;
 import com.finance.commonlib.utils.ImageUtils;
 import com.finance.commonlib.utils.NetworkUtils;
 import com.finance.commonlib.utils.StatusBarUtils;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.finance.commonlib.utils.ThreadPool;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -75,16 +81,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
 
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_webview)
@@ -500,11 +497,7 @@ public class MainActivity extends BaseActivity {
         if (TextUtils.isEmpty(imgUrl)) {
             return;
         }
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("demo-pool-%d").build();
-        if (singleThreadPool == null) {
-            singleThreadPool = new ThreadPoolExecutor(1, 3, 0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-            singleThreadPool.execute(() -> {
+        ThreadPool.getSingleThreadPool().execute(() -> {
                 try {
                     Bitmap bitmap = Glide.with(context)
                             .asBitmap()
@@ -520,7 +513,7 @@ public class MainActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             });
-        }
+
     }
 
     @UiThread
@@ -756,14 +749,16 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         clearCache();
-        if (singleThreadPool != null) {
-            singleThreadPool.shutdownNow();
-        }
+        ThreadPool.getSingleThreadPool().shutdownNow();
     }
 
     //js传递给Android
     private class JsInterface {
         private Context mContext;
+
+        public int verifyTheVersion(){
+            return 101;
+        }
 
         public JsInterface(Context context) {
             this.mContext = context;
@@ -838,7 +833,7 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void createQRPicture(String data) {
-            Log.d("tag ", "js to android actionDial=" + data);
+            Log.d("tag ", "js to android createQRPicture=" + data);
             JSONObject object = JSONObject.parseObject(data);
             imgUrl = object.getString("url");
             showDialog(MainActivity.this, TYPE_SAVE_IMG);

@@ -84,7 +84,6 @@ dependencies {
     //okHttp
     api 'com.qianwen:update-app:3.5.2'
     api 'com.qianwen:okhttp-utils:3.8.0'
-    api 'com.google.guava:guava:24.1-jre@jar'
 
     //Gson
     api 'com.google.code.gson:gson:2.8.5'
