@@ -96,7 +96,14 @@ public class MainActivity extends BaseActivity {
     private final static int CHOOSE_PHOTO = 103;
     private final static int PERMISSION_CAMERA = 104;
     private final static int PERMISSION_ALBUM = 105;
+    private final static int REQUEST_PERMISSION_CODE = 106;
     private final static String PACKAGENAME_FILEPROVIDER = "com.finance.biiid.fileprovider";
+    /**
+     * 读写权限
+     */
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE};
     @ViewById(R.id.wv_view)
     WebView webView;
     @ViewById(R.id.tv_title)
@@ -113,7 +120,6 @@ public class MainActivity extends BaseActivity {
     ImageView ivMore;
     @ViewById(R.id.iv_back)
     ImageView ivBack;
-
     private Uri imageUri;
     private int mWXType;
     private String webViewUrl;
@@ -443,7 +449,7 @@ public class MainActivity extends BaseActivity {
                 }
             } else if (type == TYPE_SAVE_IMG) {
                 if (i == R.id.tvUp) {
-                    saveAlbum();
+                    saveAlbumPermissions();
                 } else if (i == R.id.tvDown) {
                     gotoWxActivity();
                 }
@@ -561,6 +567,19 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    /**
+     * 检测是否需要读写权限
+     */
+    private void saveAlbumPermissions() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
+            } else {
+                saveAlbum();
+            }
+        }
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -577,6 +596,11 @@ public class MainActivity extends BaseActivity {
                     openAlbum();
                 } else {
                     Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case REQUEST_PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    saveAlbum();
                 }
                 break;
             default:
