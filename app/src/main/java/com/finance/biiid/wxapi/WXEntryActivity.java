@@ -11,9 +11,6 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -28,12 +25,16 @@ import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.opensdk.modelmsg.WXImageObject;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     /**
@@ -52,7 +53,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_wx_transparent);//分享设置透明布局
-        Log.d(TAG, "11111 onCreate");
         try {
             MyApplication.WXapi.handleIntent(getIntent(), this);
         } catch (Exception e) {
@@ -66,14 +66,9 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             shareWX(wxType, mData);
         } else if (AppConfig.WX_TYPE_AUTH == wxType) {
             //授权
-            try {
-                JSONObject object = new JSONObject(mData);
-                appId = object.getString("appId");
-                appSecret = object.getString("appSecret");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
             auth();
+        }else if (AppConfig.WX_TYPE_SEND_IMG==wxType){
+            shareImg(mData);
         }
     }
 
@@ -81,7 +76,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "11111 onResume" + isFirstOpen + ", isGoBaseResp=" + isGoBaseResp);
-        if (isFirstOpen ) {
+        if (isFirstOpen) {
             finish();
         }
         isFirstOpen = true;
@@ -127,12 +122,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:
                 Log.d(TAG, "11111 onResp cancel");
-//                if (AppConfig.WX_TYPE_FRIEND == wxType || AppConfig.WX_TYPE_TIMELINE == wxType) {
-//                    result = R.string.errcode_cancel;
-//                } else if (AppConfig.WX_TYPE_AUTH == wxType) {
-//                    result = R.string.auth_cancel;
-//                }
-//                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
                 this.finish();
                 break;
             case BaseResp.ErrCode.ERR_AUTH_DENIED:
@@ -149,8 +138,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 break;
             default:
                 Log.d(TAG, "11111 onResp unknown");
-//                result = R.string.errcode_unknown;
-//                Toast.makeText(WXEntryActivity.this, result, Toast.LENGTH_LONG).show();
                 this.finish();
                 break;
         }
@@ -158,6 +145,13 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 
     //授权请求
     private void auth() {
+        try {
+            JSONObject object = new JSONObject(mData);
+            appId = object.getString("appId");
+            appSecret = object.getString("appSecret");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         final SendAuth.Req req = new SendAuth.Req();
         req.scope = "snsapi_userinfo";
         req.state = "wx_login_ddq";
@@ -171,7 +165,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     private void shareWX(int mTargetScene, String data) {
         if (TextUtils.isEmpty(data)) {
             Log.d(TAG, "1111111 onResp isEmpty data=" + data);
-//            Toast.makeText(this, R.string.str_share_data_exception, Toast.LENGTH_SHORT).show();
             this.finish();
             return;
         }
@@ -214,6 +207,35 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                 req.message = msg;
                 req.scene = mTargetScene == 0 ? SendMessageToWX.Req.WXSceneSession : SendMessageToWX.Req.WXSceneTimeline;
                 MyApplication.WXapi.sendReq(req);
+            }
+        });
+    }
+
+    private void shareImg(String url) {
+        int THUMB_SIZE = 150;
+        //0 分享好友  1 分享朋友圈 webpage
+        Glide.with(this).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                Log.d(TAG, "1111111 11 onResourceReady");
+                //初始化 WXImageObject 和 WXMediaMessage 对象
+                WXImageObject imgObj = new WXImageObject(resource);
+                WXMediaMessage msg = new WXMediaMessage();
+                msg.mediaObject = imgObj;
+
+                Bitmap thumbBmp = Bitmap.createScaledBitmap(resource, THUMB_SIZE, THUMB_SIZE, true);
+                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+
+                SendMessageToWX.Req req = new SendMessageToWX.Req();
+                req.transaction = buildTransaction("img");
+                req.message = msg;
+                req.scene = SendMessageToWX.Req.WXSceneSession;
+                MyApplication.WXapi.sendReq(req);
+            }
+
+            @Override
+            public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                WXEntryActivity.this.finish();
             }
         });
     }
