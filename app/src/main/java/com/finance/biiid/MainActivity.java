@@ -36,16 +36,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
 import com.donkingliang.imageselector.utils.ImageSelector;
 import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
@@ -61,8 +56,10 @@ import com.finance.biiid.wxapi.WXEntryActivity;
 import com.finance.biiid.wxapi.WXPayEntryActivity;
 import com.finance.commonlib.base.BaseActivity;
 import com.finance.commonlib.utils.CommonHelper;
+import com.finance.commonlib.utils.ImageUtils;
 import com.finance.commonlib.utils.NetworkUtils;
 import com.finance.commonlib.utils.StatusBarUtils;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
@@ -77,12 +74,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
 
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_webview)
 public class MainActivity extends BaseActivity {
     private final static int TYPE_SHARE = 100;
     private final static int TYPE_CANER = 101;
+    private final static int TYPE_SAVE_IMG = 102;
     private final static int TAKE_PHOTO = 102;
     private final static int CHOOSE_PHOTO = 103;
     private final static int PERMISSION_CAMERA = 104;
@@ -109,6 +118,12 @@ public class MainActivity extends BaseActivity {
     private int mWXType;
     private String webViewUrl;
     private int uploadPicture = 9;
+    private Dialog dialog;
+    /**
+     * 生成的二维码图片
+     */
+    private String imgUrl = "";
+    private ThreadPoolExecutor singleThreadPool;
 
     @AfterViews
     void init() {
@@ -309,78 +324,12 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-
     /**
      * android to js 获取分享内容
      */
     @UiThread
     void wechatShare() {
         webView.loadUrl("javascript:wechatShare()");
-    }
-
-    //js传递给Android
-    private class JsInterface {
-        private Context mContext;
-
-        public JsInterface(Context context) {
-            this.mContext = context;
-        }
-
-        @JavascriptInterface
-        public void wechatShare(String data) {
-            Log.d("tag ", "js to android wechatShare=" + data);
-            gotoWxActivity(mWXType, data);
-        }
-
-        @JavascriptInterface
-        public void wechatPay(String data) {
-            Log.d("tag ", "js to android wechatPay=" + data);
-            if (TextUtils.isEmpty(data)) {
-                shortTip(R.string.pay_fail);
-                return;
-            }
-            gotoWxPayActivity(data);
-        }
-
-        @JavascriptInterface
-        public void getPicture(String data) {
-            Log.d("tag ", "js to android getPicture");
-            if (!TextUtils.isEmpty(data)) {
-                JSONObject object = JSONObject.parseObject(data);
-                uploadPicture = object.getInteger("num");
-            }
-            showDialog(MainActivity.this, TYPE_CANER);
-        }
-
-        @JavascriptInterface
-        public void wechatLogin(String data) {
-            Log.d("tag ", "js to android wechatLogin" + data);
-            gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
-        }
-
-        @JavascriptInterface
-        public void previewImage(String data) {
-            Log.d("tag ", "js to android previewImage" + data);
-            gotoPreviewImage(data);
-        }
-
-        @JavascriptInterface
-        public void getRefreshToken(String data) {
-            Log.d("tag ", "js to android getRefreshToken type=" + data);
-            JSONObject object = JSONObject.parseObject(data);
-            int type = object.getInteger("type");
-            checkWeChatLoginStatus(type);
-        }
-
-        @JavascriptInterface
-        public void homePage(String data) {
-            Log.d("tag ", "js to android getRefreshToken type=" + data);
-            JSONObject object = JSONObject.parseObject(data);
-            int status = object.getInteger("status");
-            if (status == 0) {
-                backHome();
-            }
-        }
     }
 
     /**
@@ -403,25 +352,6 @@ public class MainActivity extends BaseActivity {
                 .imagesUrl(imagesList)
                 .current(currentPosition)
                 .start();
-    }
-
-    /**
-     * 是否安装微信
-     *
-     * @return
-     */
-    private boolean isInstallWechat() {
-        final PackageManager packageManager = context.getPackageManager();// 获取packagemanager
-        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);// 获取所
-        if (pinfo != null) {
-            for (int i = 0; i < pinfo.size(); i++) {
-                String pn = pinfo.get(i).packageName;
-                if (pn.equals("com.tencent.mm")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     //分享 授权登录
@@ -452,8 +382,6 @@ public class MainActivity extends BaseActivity {
             shortTip(R.string.wx_str_no_support_pay);
         }
     }
-
-    private Dialog dialog;
 
     public void showDialog(final Context getActivity, int type) {
         dialog = new Dialog(getActivity, R.style.BottomDialog);
@@ -487,6 +415,9 @@ public class MainActivity extends BaseActivity {
         } else if (type == TYPE_CANER) {
             textUp.setText(getString(R.string.str_take_photo));
             textDown.setText(getString(R.string.str_select_album));
+        } else if (type == TYPE_SAVE_IMG) {
+            textUp.setText(R.string.save_text);
+            textDown.setText(getString(R.string.wx_share_session));
         }
         //on click
         View.OnClickListener listener = v -> {
@@ -510,6 +441,12 @@ public class MainActivity extends BaseActivity {
                 } else if (i == R.id.tvDown) {
                     getPhotoFromAlbum();
                 }
+            } else if (type == TYPE_SAVE_IMG) {
+                if (i == R.id.tvUp) {
+                    saveAlbum();
+                } else if (i == R.id.tvDown) {
+                    gotoWxActivity();
+                }
             }
             if (i == R.id.tvCancel) {
                 dialog.dismiss();
@@ -520,6 +457,64 @@ public class MainActivity extends BaseActivity {
         textCancel.setOnClickListener(listener);
         dialog.setCancelable(true);
         dialog.show();//显示对话框
+    }
+
+    //分享朋友图片
+    private void gotoWxActivity() {
+        if (!isInstallWechat()) {
+            shortTip(R.string.str_need_install_wx);
+            return;
+        }
+        if (!TextUtils.isEmpty(imgUrl)) {
+            Intent intent = new Intent(this, WXEntryActivity.class);
+            intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_IMG);
+            intent.putExtra(AppConfig.WX_DATA, imgUrl);
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * 是否安装微信
+     */
+    private boolean isInstallWechat() {
+        final PackageManager packageManager = context.getPackageManager();
+        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
+        if (pinfo != null) {
+            for (int i = 0; i < pinfo.size(); i++) {
+                String pn = pinfo.get(i).packageName;
+                if (pn.equals("com.tencent.mm")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void saveAlbum() {
+        if (TextUtils.isEmpty(imgUrl)) {
+            return;
+        }
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("demo-pool-%d").build();
+        if (singleThreadPool == null) {
+            singleThreadPool = new ThreadPoolExecutor(1, 3, 0L, TimeUnit.MILLISECONDS,
+                    new LinkedBlockingQueue<>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+            singleThreadPool.execute(() -> {
+                try {
+                    Bitmap bitmap = Glide.with(context)
+                            .asBitmap()
+                            .load(imgUrl)
+                            .submit()
+                            .get();
+                    if (ImageUtils.saveImageToGallery(context, bitmap, 100)) {
+                        shortTip(R.string.save_success);
+                    } else {
+                        shortTip(R.string.save_fail);
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 
     @UiThread
@@ -624,12 +619,6 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
-//    //单选相册
-//    private void openAlbum() {
-//        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-//        intent.setType("image/*");
-//        startActivityForResult(intent, CHOOSE_PHOTO);
-//    }
 
     /**
      * 限数量的多选(比如最多9张)三方库
@@ -642,6 +631,12 @@ public class MainActivity extends BaseActivity {
                 .canPreview(true) //是否可以预览图片，默认为true
                 .start(this, CHOOSE_PHOTO); // 打开相册
     }
+//    //单选相册
+//    private void openAlbum() {
+//        Intent intent = new Intent("android.intent.action.GET_CONTENT");
+//        intent.setType("image/*");
+//        startActivityForResult(intent, CHOOSE_PHOTO);
+//    }
 
     private void handleImageOnKitKat(Intent data) {
         String imagesPath = null;
@@ -737,5 +732,92 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         clearCache();
+        if (singleThreadPool != null) {
+            singleThreadPool.shutdownNow();
+        }
+    }
+
+    //js传递给Android
+    private class JsInterface {
+        private Context mContext;
+
+        public JsInterface(Context context) {
+            this.mContext = context;
+        }
+
+        @JavascriptInterface
+        public void wechatShare(String data) {
+            Log.d("tag ", "js to android wechatShare=" + data);
+            gotoWxActivity(mWXType, data);
+        }
+
+        @JavascriptInterface
+        public void wechatPay(String data) {
+            Log.d("tag ", "js to android wechatPay=" + data);
+            if (TextUtils.isEmpty(data)) {
+                shortTip(R.string.pay_fail);
+                return;
+            }
+            gotoWxPayActivity(data);
+        }
+
+        @JavascriptInterface
+        public void getPicture(String data) {
+            Log.d("tag ", "js to android getPicture");
+            if (!TextUtils.isEmpty(data)) {
+                JSONObject object = JSONObject.parseObject(data);
+                uploadPicture = object.getInteger("num");
+            }
+            showDialog(MainActivity.this, TYPE_CANER);
+        }
+
+        @JavascriptInterface
+        public void wechatLogin(String data) {
+            Log.d("tag ", "js to android wechatLogin" + data);
+            gotoWxActivity(AppConfig.WX_TYPE_AUTH, data);
+        }
+
+        @JavascriptInterface
+        public void previewImage(String data) {
+            Log.d("tag ", "js to android previewImage" + data);
+            gotoPreviewImage(data);
+        }
+
+        @JavascriptInterface
+        public void getRefreshToken(String data) {
+            Log.d("tag ", "js to android getRefreshToken type=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            int type = object.getInteger("type");
+            checkWeChatLoginStatus(type);
+        }
+
+        @JavascriptInterface
+        public void homePage(String data) {
+            Log.d("tag ", "js to android actionDial=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            int status = object.getInteger("status");
+            if (status == 0) {
+                backHome();
+            }
+        }
+
+        @JavascriptInterface
+        public void actionDial(String data) {
+            Log.d("tag ", "js to android actionDial=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            String phone = object.getString("phone");
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            Uri mUri = Uri.parse("tel:" + phone);
+            intent.setData(mUri);
+            startActivity(intent);
+        }
+
+        @JavascriptInterface
+        public void createQRPicture(String data) {
+            Log.d("tag ", "js to android actionDial=" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            imgUrl = object.getString("url");
+            showDialog(MainActivity.this, TYPE_SAVE_IMG);
+        }
     }
 }
