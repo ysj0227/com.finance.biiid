@@ -50,7 +50,7 @@ import static com.finance.biiid.config.WxShareConfig.isInstallWechat;
  */
 @SuppressLint("Registered")
 @EActivity(R.layout.activtiy_big_image)
-public class ImageBigActivity extends BaseActivity {
+public class ImageBigActivity extends BaseActivity implements PageAdapter.onLongClickListener{
     @ViewById(R.id.page)
     TextView page;
     @ViewById(R.id.top)
@@ -77,6 +77,7 @@ public class ImageBigActivity extends BaseActivity {
     @AfterViews
     void init() {
         pagerAdapter = new PageAdapter(imagesUrl, getApplicationContext());
+        pagerAdapter.setLongClickListener(this);
         viewPager.setAdapter(pagerAdapter);
         viewPager.setCurrentItem(current);
         page.setText(String.format(Locale.getDefault(), "%d/%d", current + 1, imagesUrl.size()));
@@ -215,5 +216,10 @@ public class ImageBigActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         ThreadPool.getSingleThreadPool().shutdownNow();
+    }
+
+    @Override
+    public void longItemClick(int position) {
+        showDialog(this);
     }
 }

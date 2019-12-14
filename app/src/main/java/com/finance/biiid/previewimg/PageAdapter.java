@@ -21,6 +21,15 @@ import java.util.List;
 public class PageAdapter extends PagerAdapter {
     List<String> imagesUrl;
     Context context;
+    private onLongClickListener longClickListener;
+
+    public onLongClickListener getLongClickListener() {
+        return longClickListener;
+    }
+
+    public void setLongClickListener(onLongClickListener longClickListener) {
+        this.longClickListener = longClickListener;
+    }
 
     public PageAdapter(List<String> imagesUrl, Context context) {
         this.imagesUrl = imagesUrl;
@@ -41,6 +50,10 @@ public class PageAdapter extends PagerAdapter {
                 .load(url)
                 .into(photoView);
         container.addView(photoView);
+        photoView.setOnLongClickListener(v -> {
+            longClickListener.longItemClick(position);
+            return false;
+        });
         return photoView;
     }
 
@@ -52,5 +65,9 @@ public class PageAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view == object;
+    }
+
+    public interface onLongClickListener{
+        void longItemClick(int position);
     }
 }
