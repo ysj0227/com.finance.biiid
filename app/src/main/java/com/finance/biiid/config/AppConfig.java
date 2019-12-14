@@ -27,5 +27,6 @@ public class AppConfig {
     public final static int WX_TYPE_TIMELINE=1;
     public final static int WX_TYPE_AUTH=2;
     public final static int WX_TYPE_SEND_IMG=3;
+    public final static int WX_TYPE_SEND_QR_IMG=4;
 
 }

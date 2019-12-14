@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -46,7 +45,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.bumptech.glide.Glide;
 import com.donkingliang.imageselector.utils.ImageSelector;
 import com.donkingliang.imageselector.utils.ImageUtil;
 import com.donkingliang.imageselector.utils.UriUtils;
@@ -78,10 +76,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
+
+import static com.finance.biiid.config.WxShareConfig.isInstallWechat;
+import static com.finance.commonlib.utils.ImageUtils.base64ToBitmap;
 
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_webview)
@@ -125,8 +123,8 @@ public class MainActivity extends BaseActivity {
     /**
      * 生成的二维码图片
      */
-    private String imgUrl = "";
-    private ThreadPoolExecutor singleThreadPool;
+    private String imgUrlBase64 = "";
+    private boolean isShareQRPicture;
 
     @AfterViews
     void init() {
@@ -161,7 +159,11 @@ public class MainActivity extends BaseActivity {
 
     @Click(R.id.iv_more)
     void moreClick() {
-        showDialog(context, TYPE_SHARE);
+        if (isShareQRPicture) {
+            showDialog(context, TYPE_SAVE_IMG);
+        } else {
+            showDialog(context, TYPE_SHARE);
+        }
     }
 
     @Override
@@ -359,7 +361,7 @@ public class MainActivity extends BaseActivity {
 
     //分享 授权登录
     private void gotoWxActivity(int type, String data) {
-        if (!isInstallWechat()) {
+        if (!isInstallWechat(context)) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
@@ -371,7 +373,7 @@ public class MainActivity extends BaseActivity {
 
     //跳转微信支付
     private void gotoWxPayActivity(String data) {
-        if (!isInstallWechat()) {
+        if (!isInstallWechat(context)) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
@@ -464,56 +466,27 @@ public class MainActivity extends BaseActivity {
 
     //分享朋友图片
     private void gotoWxActivity() {
-        if (!isInstallWechat()) {
+        if (!isInstallWechat(context)) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
-        if (!TextUtils.isEmpty(imgUrl)) {
+        if (!TextUtils.isEmpty(imgUrlBase64)) {
             Intent intent = new Intent(this, WXEntryActivity.class);
-            intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_IMG);
-            intent.putExtra(AppConfig.WX_DATA, imgUrl);
+            intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_QR_IMG);
+            intent.putExtra(AppConfig.WX_DATA, imgUrlBase64);
             startActivity(intent);
         }
     }
 
-    /**
-     * 是否安装微信
-     */
-    private boolean isInstallWechat() {
-        final PackageManager packageManager = context.getPackageManager();
-        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);
-        if (pinfo != null) {
-            for (int i = 0; i < pinfo.size(); i++) {
-                String pn = pinfo.get(i).packageName;
-                if (pn.equals("com.tencent.mm")) {
-                    return true;
-                }
+    private void saveAlbum() {
+        if (!TextUtils.isEmpty(imgUrlBase64)) {
+            Bitmap bitmap = base64ToBitmap(imgUrlBase64);
+            if (ImageUtils.saveImageToGallery(context, bitmap, 100)) {
+                shortTip(R.string.save_success);
+            } else {
+                shortTip(R.string.save_fail);
             }
         }
-        return false;
-    }
-
-    private void saveAlbum() {
-        if (TextUtils.isEmpty(imgUrl)) {
-            return;
-        }
-        ThreadPool.getSingleThreadPool().execute(() -> {
-                try {
-                    Bitmap bitmap = Glide.with(context)
-                            .asBitmap()
-                            .load(imgUrl)
-                            .submit()
-                            .get();
-                    if (ImageUtils.saveImageToGallery(context, bitmap, 100)) {
-                        shortTip(R.string.save_success);
-                    } else {
-                        shortTip(R.string.save_fail);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            });
-
     }
 
     @UiThread
@@ -573,6 +546,7 @@ public class MainActivity extends BaseActivity {
             }
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -756,7 +730,7 @@ public class MainActivity extends BaseActivity {
     private class JsInterface {
         private Context mContext;
 
-        public int verifyTheVersion(){
+        public int verifyTheVersion() {
             return 101;
         }
 
@@ -767,6 +741,7 @@ public class MainActivity extends BaseActivity {
         @JavascriptInterface
         public void wechatShare(String data) {
             Log.d("tag ", "js to android wechatShare=" + data);
+            isShareQRPicture = false;
             gotoWxActivity(mWXType, data);
         }
 
@@ -812,7 +787,7 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void homePage(String data) {
-            Log.d("tag ", "js to android actionDial=" + data);
+            Log.d("tag ", "js to android homePage=" + data);
             JSONObject object = JSONObject.parseObject(data);
             int status = object.getInteger("status");
             if (status == 0) {
@@ -831,12 +806,18 @@ public class MainActivity extends BaseActivity {
             startActivity(intent);
         }
 
+        /**
+         * 保存和分享生成的二维码图片
+         *
+         * @param data data
+         */
         @JavascriptInterface
         public void createQRPicture(String data) {
             Log.d("tag ", "js to android createQRPicture=" + data);
             JSONObject object = JSONObject.parseObject(data);
-            imgUrl = object.getString("url");
-            showDialog(MainActivity.this, TYPE_SAVE_IMG);
+            imgUrlBase64 = object.getString("url");
+            isShareQRPicture = true;
         }
     }
+
 }

@@ -11,6 +11,9 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
@@ -33,8 +36,7 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import static com.finance.commonlib.utils.ImageUtils.base64ToBitmap;
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     /**
@@ -69,6 +71,10 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             auth();
         }else if (AppConfig.WX_TYPE_SEND_IMG==wxType){
             shareImg(mData);
+        }else if (AppConfig.WX_TYPE_SEND_QR_IMG==wxType){
+            //分享二维码图片
+            Bitmap bitmap = base64ToBitmap(mData);
+            shareImageView(bitmap);
         }
     }
 
@@ -212,25 +218,14 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
     }
 
     private void shareImg(String url) {
-        int THUMB_SIZE = 150;
+
         //0 分享好友  1 分享朋友圈 webpage
         Glide.with(this).asBitmap().load(url).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
                 Log.d(TAG, "1111111 11 onResourceReady");
                 //初始化 WXImageObject 和 WXMediaMessage 对象
-                WXImageObject imgObj = new WXImageObject(resource);
-                WXMediaMessage msg = new WXMediaMessage();
-                msg.mediaObject = imgObj;
-
-                Bitmap thumbBmp = Bitmap.createScaledBitmap(resource, THUMB_SIZE, THUMB_SIZE, true);
-                msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
-
-                SendMessageToWX.Req req = new SendMessageToWX.Req();
-                req.transaction = buildTransaction("img");
-                req.message = msg;
-                req.scene = SendMessageToWX.Req.WXSceneSession;
-                MyApplication.WXapi.sendReq(req);
+                shareImageView(resource);
             }
 
             @Override
@@ -239,4 +234,23 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             }
         });
     }
+
+
+    private void shareImageView(Bitmap resource){
+        int THUMB_SIZE = 150;
+        WXImageObject imgObj = new WXImageObject(resource);
+        WXMediaMessage msg = new WXMediaMessage();
+        msg.mediaObject = imgObj;
+
+        Bitmap thumbBmp = Bitmap.createScaledBitmap(resource, THUMB_SIZE, THUMB_SIZE, true);
+        msg.thumbData = Util.bmpToByteArray(thumbBmp, true);
+
+        SendMessageToWX.Req req = new SendMessageToWX.Req();
+        req.transaction = buildTransaction("img");
+        req.message = msg;
+        req.scene = SendMessageToWX.Req.WXSceneSession;
+        MyApplication.WXapi.sendReq(req);
+    }
+
+
 }

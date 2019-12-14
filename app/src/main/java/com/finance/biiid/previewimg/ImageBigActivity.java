@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import static com.finance.biiid.config.WxShareConfig.isInstallWechat;
+
 /**
  * @author yangShiJie
  * @date 2019-11-14
@@ -155,7 +157,7 @@ public class ImageBigActivity extends BaseActivity {
 
     //分享 授权登录
     private void gotoWxActivity(String imgUrl) {
-        if (!isInstallWechat()) {
+        if (!isInstallWechat(context)) {
             shortTip(R.string.str_need_install_wx);
             return;
         }
@@ -165,27 +167,7 @@ public class ImageBigActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    /**
-     * 是否安装微信
-     *
-     * @return
-     */
-    private boolean isInstallWechat() {
-        final PackageManager packageManager = context.getPackageManager();// 获取packagemanager
-        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);// 获取所
-        if (pinfo != null) {
-            for (int i = 0; i < pinfo.size(); i++) {
-                String pn = pinfo.get(i).packageName;
-                if (pn.equals("com.tencent.mm")) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private void saveAlbum() {
-        Log.d(TAG,"11111 imgUrl="+imgUrl);
         ThreadPool.getSingleThreadPool().execute(() -> {
             try {
                 Bitmap bitmap = Glide.with(context)
