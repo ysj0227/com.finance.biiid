@@ -35,12 +35,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -77,6 +71,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
 
 import static com.finance.biiid.config.WxShareConfig.isInstallWechat;
 import static com.finance.commonlib.utils.ImageUtils.base64ToBitmap;
@@ -223,12 +223,6 @@ public class MainActivity extends BaseActivity {
                 super.onPageFinished(view, url);
                 Log.d(TAG, "webview onPageFinished url=" + url);
                 webViewUrl = url;
-//                if (url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE) ||
-//                        url.equalsIgnoreCase(InitAppConfig.APP_ENTRANCE1)) {
-//                    ivBack.setVisibility(View.GONE);
-//                } else {
-//                    ivBack.setVisibility(View.VISIBLE);
-//                }
             }
 
             @Override
@@ -371,6 +365,21 @@ public class MainActivity extends BaseActivity {
         startActivity(intent);
     }
 
+    //分享朋友图片
+    @UiThread
+    void gotoWxActivity() {
+        if (!isInstallWechat(context)) {
+            shortTip(R.string.str_need_install_wx);
+            return;
+        }
+        if (!TextUtils.isEmpty(imgUrlBase64)) {
+            Intent intent = new Intent(this, WXEntryActivity.class);
+            intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_QR_IMG);
+            intent.putExtra(AppConfig.WX_DATA, imgUrlBase64);
+            startActivity(intent);
+        }
+    }
+
     //跳转微信支付
     private void gotoWxPayActivity(String data) {
         if (!isInstallWechat(context)) {
@@ -427,8 +436,8 @@ public class MainActivity extends BaseActivity {
         //on click
         View.OnClickListener listener = v -> {
             int i = v.getId();
+            dialog.dismiss();
             if (type == TYPE_SHARE) {
-                dialog.dismiss();
                 if (i == R.id.tvUp) {
                     mWXType = AppConfig.WX_TYPE_FRIEND;
                     wechatShare();
@@ -464,19 +473,7 @@ public class MainActivity extends BaseActivity {
         dialog.show();//显示对话框
     }
 
-    //分享朋友图片
-    private void gotoWxActivity() {
-        if (!isInstallWechat(context)) {
-            shortTip(R.string.str_need_install_wx);
-            return;
-        }
-        if (!TextUtils.isEmpty(imgUrlBase64)) {
-            Intent intent = new Intent(this, WXEntryActivity.class);
-            intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_QR_IMG);
-            intent.putExtra(AppConfig.WX_DATA, imgUrlBase64);
-            startActivity(intent);
-        }
-    }
+
 
     private void saveAlbum() {
         if (!TextUtils.isEmpty(imgUrlBase64)) {
@@ -730,12 +727,13 @@ public class MainActivity extends BaseActivity {
     private class JsInterface {
         private Context mContext;
 
-        public int verifyTheVersion() {
-            return 101;
-        }
-
         public JsInterface(Context context) {
             this.mContext = context;
+        }
+
+        @JavascriptInterface
+        public int verifyTheVersion() {
+            return CommonHelper.getAppVersionCode(context);
         }
 
         @JavascriptInterface
@@ -819,5 +817,4 @@ public class MainActivity extends BaseActivity {
             isShareQRPicture = true;
         }
     }
-
 }
