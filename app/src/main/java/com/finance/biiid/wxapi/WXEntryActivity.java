@@ -73,7 +73,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
             shareImg(mData);
         }else if (AppConfig.WX_TYPE_SEND_QR_IMG==wxType){
             //分享二维码图片
-            Bitmap bitmap = base64ToBitmap(mData);
+           //  Bitmap bitmap = base64ToBitmap(mData);
+            Bitmap bitmap = base64ToBitmap(AppConfig.base64ImgData);
             shareImageView(bitmap);
         }
     }
