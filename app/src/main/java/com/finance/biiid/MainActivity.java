@@ -366,8 +366,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //分享朋友图片
-    @UiThread
-    void gotoWxActivity() {
+    private void gotoWxActivity() {
         if (!isInstallWechat(context)) {
             shortTip(R.string.str_need_install_wx);
             return;
@@ -375,7 +374,9 @@ public class MainActivity extends BaseActivity {
         if (!TextUtils.isEmpty(imgUrlBase64)) {
             Intent intent = new Intent(this, WXEntryActivity.class);
             intent.putExtra(AppConfig.WX_TYPE, AppConfig.WX_TYPE_SEND_QR_IMG);
-            intent.putExtra(AppConfig.WX_DATA, imgUrlBase64);
+//            intent.putExtra(AppConfig.WX_DATA, imgUrlBase64);//传递的数据过大导致异常
+            intent.putExtra(AppConfig.WX_DATA, "");
+            AppConfig.base64ImgData = imgUrlBase64;
             startActivity(intent);
         }
     }
@@ -472,7 +473,6 @@ public class MainActivity extends BaseActivity {
         dialog.setCancelable(true);
         dialog.show();//显示对话框
     }
-
 
 
     private void saveAlbum() {
