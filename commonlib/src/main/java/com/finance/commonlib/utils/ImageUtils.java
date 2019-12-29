@@ -172,7 +172,7 @@ public class ImageUtils {
         if (bmp == null) {
             return false;
         }
-        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "screen_shot";
+        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "screen";
         File appDir = new File(storePath);
         if (!appDir.exists()) {
             appDir.mkdir();
@@ -185,9 +185,9 @@ public class ImageUtils {
             boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, quality, fos);
             fos.flush();
             fos.close();
-            //把文件插入到系统图库
-            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
-            //保存图片后发送广播通知更新数据库
+//            //把文件插入到系统图库
+//            MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
+//            //保存图片后发送广播通知更新数据库
             Uri uri = Uri.fromFile(file);
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
             return isSuccess;
