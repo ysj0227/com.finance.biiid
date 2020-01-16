@@ -25,18 +25,12 @@ public class TestActivity extends Activity {
         Button button3 = findViewById(R.id.button3);
         Button button4 = findViewById(R.id.button4);
         Button button5 = findViewById(R.id.button5);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(TestActivity.this, WXEntryActivity.class);
-                startActivity(intent);
-            }
+        button.setOnClickListener(v -> {
+            Intent intent = new Intent(TestActivity.this, WXEntryActivity.class);
+            startActivity(intent);
         });
-        button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        button2.setOnClickListener(v -> {
 
-            }
         });
         button3.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,12 +46,6 @@ public class TestActivity extends Activity {
 
                 Intent intent = new Intent(TestActivity.this, WXEntryActivity.class);
                 startActivity(intent);
-            }
-        });
-        button5.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SelectPictureActivity_.intent(TestActivity.this).start();
             }
         });
     }
