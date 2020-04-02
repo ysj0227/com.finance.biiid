@@ -21,8 +21,10 @@ import com.finance.biiid.MyApplication;
 import com.finance.biiid.R;
 import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.model.ShareData;
+import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.utils.Util;
 import com.finance.biiid.utils.WxAuthLoginUtils;
+import com.finance.commonlib.notification.BaseNotification;
 import com.google.gson.Gson;
 import com.tencent.mm.opensdk.modelbase.BaseReq;
 import com.tencent.mm.opensdk.modelbase.BaseResp;
@@ -123,8 +125,7 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                     Log.d(TAG, "11111 onResp auth");
                     //授权登录
                     String code = ((SendAuth.Resp) resp).code;
-//                    WxAuthLoginUtils.getToken(this,Constants.APP_ID,Constants.APP_SECRET,code);
-                    WxAuthLoginUtils.getToken(WXEntryActivity.this, appId, appSecret, code);
+                    BaseNotification.newInstance().postNotificationName(CommonNotifications.weChatData, code);
                 }
                 break;
             case BaseResp.ErrCode.ERR_USER_CANCEL:

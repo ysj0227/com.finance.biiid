@@ -273,19 +273,13 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * 上传微信授权信息到js
-     *
-     * @param d1 d1
-     * @param d2 d2
+     * 发送授权登录后获取code传给js
      */
     @UiThread
-    void wxChatAuthSuccess(String d1, String d2) {
+    void wxChatAuthSuccess(String code) {
         try {
             JSONObject object = new JSONObject();
-            JSONObject object1 = JSONObject.parseObject(d1);
-            JSONObject object2 = JSONObject.parseObject(d2);
-            object.putAll(object1);
-            object.putAll(object2);
+            object.put("code", code);
             webView.loadUrl("javascript:getUserLoginInfo" + "('" + object.toString() + "')");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -296,8 +290,8 @@ public class MainActivity extends BaseActivity {
     void checkWeChatLoginStatus(int type) {
         try {
             JSONObject object = new JSONObject();
-            object.put("refresh_token", SpUtils.getWXRefreshToken());
-            object.put("unionid", SpUtils.getWXUnionid());
+            object.put("refreshToken", SpUtils.getWXRefreshToken());
+            object.put("unionId", SpUtils.getWXUnionid());
             object.put("type", type);
             webView.loadUrl("javascript:checkWeChatLoginStatus" + "('" + object.toString() + "')");
         } catch (JSONException e) {
@@ -679,7 +673,9 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public int[] getStickNotificationId() {
-        return new int[]{CommonNotifications.weChatData, CommonNotifications.weChatPayStatus};
+        return new int[]{
+                CommonNotifications.weChatData,
+                CommonNotifications.weChatPayStatus};
     }
 
     @Override
@@ -689,9 +685,8 @@ public class MainActivity extends BaseActivity {
             return;
         }
         if (id == CommonNotifications.weChatData) {
-            String d1 = (String) args[0];
-            String d2 = (String) args[1];
-            wxChatAuthSuccess(d1, d2);
+            String code = (String) args[0];
+            wxChatAuthSuccess(code);
         } else if (id == CommonNotifications.weChatPayStatus) {
             int code = (int) args[0];
             String url = (String) args[1];
@@ -770,9 +765,13 @@ public class MainActivity extends BaseActivity {
         }
 
         @JavascriptInterface
-        public void previewImage(String data) {
-            Log.d("tag ", "js to android previewImage" + data);
-            gotoPreviewImage(data);
+        public void getWechatLoginMessage(String data) {
+            Log.d("tag ", "js to android getWechatLoginMessage" + data);
+            JSONObject object = JSONObject.parseObject(data);
+            String refreshToken = object.getString("refreshToken");
+            String unionId = object.getString("unionId");
+            SpUtils.saveWXRefreshToken(refreshToken);
+            SpUtils.saveWXUnionid(unionId);
         }
 
         @JavascriptInterface
@@ -781,6 +780,12 @@ public class MainActivity extends BaseActivity {
             JSONObject object = JSONObject.parseObject(data);
             int type = object.getInteger("type");
             checkWeChatLoginStatus(type);
+        }
+
+        @JavascriptInterface
+        public void previewImage(String data) {
+            Log.d("tag ", "js to android previewImage" + data);
+            gotoPreviewImage(data);
         }
 
         @JavascriptInterface
