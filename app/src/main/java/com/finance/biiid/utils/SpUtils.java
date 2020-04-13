@@ -10,6 +10,7 @@ public class SpUtils {
 
     private static final String REFRESH_TOKEN = "REFRESH_TOKEN";
     private static final String UNIONID = "UNIONID";
+    private static final String AGREE_PROTOCOL = "AGREE_PROTOCOL";
 
     SpUtils() {
     }
@@ -32,6 +33,14 @@ public class SpUtils {
 
     public static String getWXUnionid() {
         return SharedManager.getValue(BaseApplication.getContext(), UNIONID);
+    }
+
+    public static void saveProtocol() {
+        SharedManager.putValue(BaseApplication.getContext(), AGREE_PROTOCOL, "Y");
+    }
+
+    public static String getProtocol() {
+        return SharedManager.getValue(BaseApplication.getContext(), AGREE_PROTOCOL);
     }
 
 }

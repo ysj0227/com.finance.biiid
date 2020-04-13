@@ -48,6 +48,7 @@ import com.finance.biiid.config.WxShareConfig;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.previewimg.ImageBigActivity_;
 import com.finance.biiid.utils.BitmapUtils;
+import com.finance.biiid.utils.ProtocolDialog;
 import com.finance.biiid.utils.SpUtils;
 import com.finance.biiid.webview.SMWebViewClient;
 import com.finance.biiid.wxapi.WXEntryActivity;
@@ -150,6 +151,9 @@ public class MainActivity extends BaseActivity {
                 }
             }
         });
+        if (TextUtils.isEmpty(SpUtils.getProtocol())) {
+            ProtocolDialog.dialog(context);
+        }
     }
 
     @Click(R.id.iv_back)
