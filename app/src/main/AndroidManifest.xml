@@ -92,6 +92,8 @@
             android:name="com.donkingliang.imageselector.PreviewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ProtocolActivity_" />
+
         <meta-data
             android:name="ENV_DATA"
             android:value="${ENV_VALUE}" />
