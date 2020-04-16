@@ -35,6 +35,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.os.BuildCompat;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
@@ -72,12 +78,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.os.BuildCompat;
 
 import static com.finance.biiid.config.WxShareConfig.isInstallWechat;
 import static com.finance.commonlib.utils.ImageUtils.base64ToBitmap;
@@ -152,7 +152,7 @@ public class MainActivity extends BaseActivity {
             }
         });
         if (TextUtils.isEmpty(SpUtils.getProtocol())) {
-            ProtocolDialog.dialog(context);
+            new ProtocolDialog(context);
         }
     }
 
