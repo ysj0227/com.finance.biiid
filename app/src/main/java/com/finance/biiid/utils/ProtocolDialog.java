@@ -7,7 +7,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
@@ -39,10 +38,10 @@ public class ProtocolDialog {
 
         SpannableStringBuilder spannableBuilder = new SpannableStringBuilder(str);
         // 设置字体大小
-        AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan(30);
-        // 相对于默认字体大小的倍数,这里是1.3倍
-        // RelativeSizeSpan sizeSpan1 = new RelativeSizeSpan((float) 1.3);
-        spannableBuilder.setSpan(sizeSpan, 0, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        AbsoluteSizeSpan sizeSpan = new AbsoluteSizeSpan(30);
+//        // 相对于默认字体大小的倍数,这里是1.3倍
+//        // RelativeSizeSpan sizeSpan1 = new RelativeSizeSpan((float) 1.3);
+//        spannableBuilder.setSpan(sizeSpan, 0, str.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         // 单独设置字体颜色
         ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.parseColor("#DB6630"));//#FF3838
         spannableBuilder.setSpan(colorSpan, str.indexOf("《"), str.lastIndexOf("》") + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -23,7 +23,6 @@ import com.finance.biiid.config.AppConfig;
 import com.finance.biiid.model.ShareData;
 import com.finance.biiid.notifications.CommonNotifications;
 import com.finance.biiid.utils.Util;
-import com.finance.biiid.utils.WxAuthLoginUtils;
 import com.finance.commonlib.notification.BaseNotification;
 import com.google.gson.Gson;
 import com.tencent.mm.opensdk.modelbase.BaseReq;

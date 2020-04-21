@@ -292,6 +292,7 @@ public class MainActivity extends BaseActivity {
 
     @UiThread
     void checkWeChatLoginStatus(int type) {
+        Log.d("tag ", "js to android checkWeChatLoginStatus type=" +type+", refreshToken="+SpUtils.getWXRefreshToken()+", unionId="+SpUtils.getWXUnionid());
         try {
             JSONObject object = new JSONObject();
             object.put("refreshToken", SpUtils.getWXRefreshToken());
@@ -770,7 +771,7 @@ public class MainActivity extends BaseActivity {
 
         @JavascriptInterface
         public void getWechatLoginMessage(String data) {
-            Log.d("tag ", "js to android getWechatLoginMessage" + data);
+            Log.d("tag ", "111111 js to android getWechatLoginMessage" + data);
             JSONObject object = JSONObject.parseObject(data);
             String refreshToken = object.getString("refreshToken");
             String unionId = object.getString("unionId");
